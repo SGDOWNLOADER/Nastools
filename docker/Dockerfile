@@ -16,7 +16,8 @@ RUN apk add --no-cache libffi-dev \
     && pip install -r https://raw.githubusercontent.com/SGDOWNLOADER/Nastools/master/requirements.txt \
     && apk del libffi-dev \
     && npm install pm2 -g \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+    && rm -rf /tmp/* /root/.cache /var/cache/apk/* \
+    && pip cache purge
 ENV LANG="C.UTF-8" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
