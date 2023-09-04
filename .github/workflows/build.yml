@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev
+      - master
     paths:
       - version.py
 
@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./docker/Dockerfile.beta
+          file: ./docker/Dockerfile
           platforms: |
             linux/amd64
             linux/arm64
@@ -65,6 +65,8 @@ jobs:
           build-args: |
             NASTOOLS_VERSION=${{ env.app_version }}
           tags: |
-            ${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}-beta
-            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}-beta
+            ${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}
+            ${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:latest
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.HUB_DOCKER_USERNAME }}/nas-tools:latest
           labels: ${{ steps.meta.outputs.labels }}
