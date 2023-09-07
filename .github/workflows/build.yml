@@ -1,4 +1,4 @@
-name: Dev Builder
+name: Master Builder
 on:
   workflow_dispatch:
   push:
