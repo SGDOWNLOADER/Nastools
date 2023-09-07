@@ -6,6 +6,7 @@ RUN apk add --no-cache libffi-dev \
     && if [ "$(uname -m)" = "x86_64" ]; then ARCH=amd64; elif [ "$(uname -m)" = "aarch64" ]; then ARCH=arm64; fi \
     && curl https://dl.min.io/client/mc/release/linux-${ARCH}/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
+    && mkdir -p /root/.pip \
     && echo $'[global] \n\
     timeout = 600 \n\
     index-url = https://pypi.tuna.tsinghua.edu.cn/simple \n\
