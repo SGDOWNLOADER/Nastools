@@ -5,7 +5,8 @@
 
 功能优化改善：
 
-1. 修复bug：识别词替换中不能使用正则匹配（通过识别标记开启正则匹配）-已完成
+1. 修复bug：
+   (1)识别词替换中不能使用正则匹配（通过识别标记开启正则匹配）-已完成
 
    ![image-20230814084707670](https://picgomie.oss-cn-beijing.aliyuncs.com/202308140847072.png)
 
@@ -18,6 +19,8 @@
    新文件名：`[ANi] 文豪野犬_S01 - 50 [1080P][Baha][WEB-DL][AAC AVC][CHT].mp4`
 
    ![image-20230831135952958](https://raw.githubusercontent.com/miraclemie/pifgo/main/202308311359056.png)
+   
+   (2)解决了豆瓣api中不能同步收藏数据问题
 
 2. 存在的问题：文件大量转移到目录后，会存在识别错误，目前在扫描文件的时候停顿5s再进行遍历
 
