@@ -11,3 +11,4 @@ test.py
 *.ipr
 out/
 gen/
+venv
