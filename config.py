@@ -81,6 +81,12 @@ WEBDRIVER_PATH = {
     "Synology": "/var/packages/NASTool/target/bin/chromedriver"
 }
 
+# 集数字样过滤
+episode_name_ls = ['ep\d+', 'e\d+', '第\d+']
+
+# 季数过滤
+season_name_ls = ['season \d+','s\d+']
+
 # Xvfb虚拟显示路程
 XVFB_PATH = [
     "/usr/bin/Xvfb",
@@ -111,7 +117,7 @@ class Config(object):
     _config_path = None
 
     def __init__(self):
-        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') else r'F:\codes\github\Nastools\config\config.yaml'
+        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') else r'E:\codes\github\Nastools\config\config.yaml'
         if not os.environ.get('TZ'):
             os.environ['TZ'] = 'Asia/Shanghai'
         self.init_syspath()

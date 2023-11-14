@@ -16,7 +16,7 @@ from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, Strin
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY, \
-    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL
+    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL, episode_name_ls, season_name_ls
 
 
 class Media:
@@ -785,6 +785,7 @@ class Media:
                 # 先用自己的名称
                 file_name = os.path.basename(file_path)
                 parent_name = os.path.basename(os.path.dirname(file_path))
+                # 上上个目录（anime/tv/movie）
                 parent_parent_name = os.path.basename(PathUtils.get_parent_paths(file_path, 2))
                 # 过滤掉蓝光原盘目录下的子文件
                 if not os.path.isdir(file_path) \
@@ -797,23 +798,31 @@ class Media:
                     meta_info = MetaInfo(title=file_name)
                     # 识别不到则使用上级的名称
                     if not meta_info.get_name() or not meta_info.year:
-                        # 如果文件名是纯数字，例如：01.MP4，就返回上级的名称
-                        if not file_name.isdecimal():
-                            # 根据默认的配置处理该文件名（自定义识别词）
-                            file_name_modify, msg, used_info = WordsHelper().process(file_name)
-                            parent_name = file_name_modify
-                            if msg:
-                                for msg_item in msg:
-                                    log.warn("【Meta】%s" % msg_item)
-                        parent_info = MetaInfo(parent_name)
+                        # 根据默认的配置处理该文件名（自定义识别词）
+                        file_name_modify, msg, used_info = WordsHelper().process(file_name)
+                        # 判断上层目录是否存在S01或者season 1(适用于手动规整目录S01（三级目录,例如：/鬼武者/S01/01.HD中字.mp4）)
+                        season_pat = re.compile("(" + "|".join(season_name_ls) + ")", flags=re.IGNORECASE)
+                        if not season_pat.match(parent_name):
+                            parent_info = MetaInfo(parent_name)
+                            season_flag = False
+                        else:
+                            parent_info = MetaInfo(parent_parent_name)
+                            season_flag = True
+                        parent_name = file_name_modify
+                        if msg:
+                            for msg_item in msg:
+                                log.warn("【Meta】%s" % msg_item)
                         if not parent_info.get_name() or not parent_info.year:
                             parent_parent_info = MetaInfo(parent_parent_name)
                             parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
                             parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
                             parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
-                            parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
-                                                                           parent_parent_info.begin_season)
+                            if season_flag:
+                                parent_info.begin_season = int(re.findall("\d+", parent_name, flags=re.IGNORECASE)[0])
+                            else:
+                                parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
+                                                                               parent_parent_info.begin_season)
                         if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
                             meta_info.en_name = parent_info.en_name
