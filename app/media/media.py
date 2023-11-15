@@ -41,42 +41,50 @@ class Media:
 
     def init_config(self):
         app = Config().get_config('app')
+        media = Config().get_config('media')
         laboratory = Config().get_config('laboratory')
-        if app:
-            if app.get('rmt_tmdbkey'):
-                self.tmdb = TMDb()
-                if laboratory.get('tmdb_proxy'):
-                    self.tmdb.domain = DEFAULT_TMDB_PROXY
-                else:
-                    self.tmdb.domain = app.get("tmdb_domain")
-                self.tmdb.cache = True
-                self.tmdb.api_key = app.get('rmt_tmdbkey')
-                self.tmdb.language = 'zh'
-                self.tmdb.proxies = Config().get_proxies()
-                self.tmdb.debug = True
-                self.search = Search()
-                self.movie = Movie()
-                self.tv = TV()
-                self.episode = Episode()
-                self.find = Find()
-                self.person = Person()
-                self.trending = Trending()
-                self.discover = Discover()
-                self.genre = Genre()
-                self.meta = MetaHelper()
-            rmt_match_mode = app.get('rmt_match_mode', 'normal')
-            if rmt_match_mode:
-                rmt_match_mode = rmt_match_mode.upper()
-            else:
-                rmt_match_mode = "NORMAL"
-            if rmt_match_mode == "STRICT":
-                self._rmt_match_mode = MatchMode.STRICT
-            else:
-                self._rmt_match_mode = MatchMode.NORMAL
-        laboratory = Config().get_config('laboratory')
-        if laboratory:
-            self._search_keyword = laboratory.get("search_keyword")
-            self._search_tmdbweb = laboratory.get("search_tmdbweb")
+        # 辅助查询
+        self._search_keyword = laboratory.get("search_keyword")
+        # WEB辅助
+        self._search_tmdbweb = laboratory.get("search_tmdbweb")
+        # TMDB
+        if app.get('rmt_tmdbkey'):
+            # TMDB主体
+            self.tmdb = TMDb()
+            # 域名
+            self.tmdb.domain = Config().get_tmdbapi_url()
+            # 开启缓存
+            self.tmdb.cache = True
+            # APIKEY
+            self.tmdb.api_key = app.get('rmt_tmdbkey')
+            # 语种
+            self.tmdb.language = 'zh'
+            # 代理
+            self.tmdb.proxies = Config().get_proxies()
+            # 调试模式
+            self.tmdb.debug = False
+            # 查询对象
+            self.search = Search()
+            self.movie = Movie()
+            self.tv = TV()
+            self.episode = Episode()
+            self.find = Find()
+            self.person = Person()
+            self.trending = Trending()
+            self.discover = Discover()
+            self.genre = Genre()
+        # 元数据缓存
+        self.meta = MetaHelper()
+        # 匹配模式
+        rmt_match_mode = app.get('rmt_match_mode', 'normal')
+        if rmt_match_mode:
+            rmt_match_mode = rmt_match_mode.upper()
+        else:
+            rmt_match_mode = "NORMAL"
+        if rmt_match_mode == "STRICT":
+            self._rmt_match_mode = MatchMode.STRICT
+        else:
+            self._rmt_match_mode = MatchMode.NORMAL
 
     @staticmethod
     def __compare_tmdb_names(file_name, tmdb_names):
