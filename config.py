@@ -54,7 +54,8 @@ DEFAULT_OCR_SERVER = 'https://nastool.cn'
 DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.org'
 # 默认CookieCloud服务地址
 DEFAULT_COOKIECLOUD_SERVER = 'http://nastool.cn:8088'
-# TMDB图片地址
+# TMDB域名地址
+TMDB_API_DOMAINS = ['api.themoviedb.org', 'api.tmdb.org', 'tmdb.nastool.org', 't.nastool.workers.dev']
 TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original%s'
 TMDB_IMAGE_FACE_URL = 'https://image.tmdb.org/t/p/h632%s'
@@ -190,6 +191,11 @@ class Config(object):
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
         return domain
+
+    def get_tmdbapi_url(self):
+        return f"https://{self.get_config('app').get('tmdb_domain') or TMDB_API_DOMAINS[0]}/3"
+
+
 
     @staticmethod
     def get_timezone():
