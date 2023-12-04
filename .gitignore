@@ -3,6 +3,8 @@ __pycache__
 *.log
 *.pid
 test.py
+run.py
+config
 
 ### IntelliJ IDEA ###
 .idea
