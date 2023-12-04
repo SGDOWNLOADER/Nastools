@@ -802,101 +802,104 @@ class Media:
                     continue
                 # 没有自带TMDB信息
                 if not tmdb_info:
-                    # 识别名称
-                    meta_info = MetaInfo(title=file_name)
-                    # 识别不到则使用上级的名称
-                    if not meta_info.get_name() or not meta_info.year:
-                        # 根据默认的配置处理该文件名（自定义识别词）
-                        file_name_modify, msg, used_info = WordsHelper().process(file_name)
-                        # 判断上层目录是否存在S01或者season 1(适用于手动规整目录S01（三级目录,例如：/鬼武者/S01/01.HD中字.mp4）)
+                    # 判断三级目录:上层目录是否存在S01或者season 1(适用于手动规整目录S01（例如：/鬼武者/S01/01.HD中字.mp4）)
+                    if parent_parent_name:
                         season_pat = re.compile("(" + "|".join(season_name_ls) + ")", flags=re.IGNORECASE)
                         if not season_pat.match(parent_name):
                             parent_info = MetaInfo(parent_name)
                             season_flag = False
+                        if season_flag:
+                            parent_info.begin_season = int(re.findall("\d+", parent_name, flags=re.IGNORECASE)[0])
                         else:
-                            parent_info = MetaInfo(parent_parent_name)
-                            season_flag = True
-                        parent_name = file_name_modify
-                        if msg:
-                            for msg_item in msg:
-                                log.warn("【Meta】%s" % msg_item)
-                        if not parent_info.get_name() or not parent_info.year:
-                            parent_parent_info = MetaInfo(parent_parent_name)
-                            parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
-                            parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
-                            parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
-                            parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
-                            if season_flag:
-                                parent_info.begin_season = int(re.findall("\d+", parent_name, flags=re.IGNORECASE)[0])
-                            else:
+                            parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
+                                                                           parent_parent_info.begin_season)
+
+                    else:
+                        # 识别名称
+                        # 根据默认的配置处理该文件名（自定义识别词）
+                        file_name_modify, msg, used_info = WordsHelper().process(file_name)
+                        if file_name == file_name_modify:
+                            meta_info = MetaInfo(title=file_name)
+                        else:
+                            meta_info = MetaInfo(title=file_name_modify)
+                        # 识别不到则使用上级的名称
+                        if not meta_info.get_name() or not meta_info.year:
+                            parent_info = MetaInfo(parent_name)
+                            if not parent_info.get_name() or not parent_info.year:
+                                parent_parent_info = MetaInfo(parent_parent_name)
+                                parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
+                                parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
+                                parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
+                                parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                                 parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                                parent_parent_info.begin_season)
-                        if not meta_info.get_name():
-                            meta_info.cn_name = parent_info.cn_name
-                            meta_info.en_name = parent_info.en_name
-                        if not meta_info.year:
-                            meta_info.year = parent_info.year
-                        if parent_info.type and parent_info.type == MediaType.TV \
-                                and meta_info.type != MediaType.TV:
-                            meta_info.type = parent_info.type
-                        if meta_info.type == MediaType.TV:
-                            meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
-                                                                         meta_info.begin_season)
-                    if not meta_info.get_name() or not meta_info.type:
-                        log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
-                        continue
-                    # 区配缓存及TMDB
-                    media_key = self.__make_cache_key(meta_info)
-                    if not self.meta.get_meta_data_by_key(media_key):
-                        # 没有缓存数据
-                        file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
-                                                             first_media_year=meta_info.year,
-                                                             search_type=meta_info.type,
-                                                             media_year=meta_info.year,
-                                                             season_number=meta_info.begin_season)
-                        if not file_media_info:
-                            if self._rmt_match_mode == MatchMode.NORMAL:
-                                # 去掉年份再查一次，有可能是年份错误
-                                file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
-                                                                     search_type=meta_info.type)
-                        if not file_media_info and self._search_tmdbweb:
-                            # 从网站查询
-                            file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
-                                                                     mtype=meta_info.type)
-                        if not file_media_info and self._search_keyword:
-                            cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
-                            is_movie = False
-                            if not cache_name:
-                                cache_name, is_movie = self.__search_engine(meta_info.get_name())
-                                cacheman["tmdb_supply"].set(meta_info.get_name(), cache_name)
-                            if cache_name:
-                                log.info("【Meta】开始辅助查询：%s ..." % cache_name)
-                                if is_movie:
-                                    file_media_info = self.__search_tmdb(file_media_name=cache_name,
-                                                                         search_type=MediaType.MOVIE)
-                                else:
-                                    file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
-                        # 补全TMDB信息
-                        if file_media_info and not file_media_info.get("genres"):
-                            file_media_info = self.get_tmdb_info(mtype=file_media_info.get("media_type"),
-                                                                 tmdbid=file_media_info.get("id"),
-                                                                 chinese=chinese)
-                        # 保存到缓存
-                        if file_media_info is not None:
-                            self.__insert_media_cache(media_key=media_key,
-                                                      file_media_info=file_media_info)
-                    else:
-                        # 使用缓存信息
-                        cache_info = self.meta.get_meta_data_by_key(media_key)
-                        if cache_info.get("id"):
-                            file_media_info = self.get_tmdb_info(mtype=cache_info.get("type"),
-                                                                 tmdbid=cache_info.get("id"),
-                                                                 chinese=chinese)
+
+                            if not meta_info.get_name():
+                                meta_info.cn_name = parent_info.cn_name
+                                meta_info.en_name = parent_info.en_name
+                            if not meta_info.year:
+                                meta_info.year = parent_info.year
+                            if parent_info.type and parent_info.type == MediaType.TV \
+                                    and meta_info.type != MediaType.TV:
+                                meta_info.type = parent_info.type
+                            if meta_info.type == MediaType.TV:
+                                meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
+                                                                             meta_info.begin_season)
+                        if not meta_info.get_name() or not meta_info.type:
+                            log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
+                            continue
+                        # 区配缓存及TMDB
+                        media_key = self.__make_cache_key(meta_info)
+                        if not self.meta.get_meta_data_by_key(media_key):
+                            # 没有缓存数据
+                            file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
+                                                                 first_media_year=meta_info.year,
+                                                                 search_type=meta_info.type,
+                                                                 media_year=meta_info.year,
+                                                                 season_number=meta_info.begin_season)
+                            if not file_media_info:
+                                if self._rmt_match_mode == MatchMode.NORMAL:
+                                    # 去掉年份再查一次，有可能是年份错误
+                                    file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
+                                                                         search_type=meta_info.type)
+                            if not file_media_info and self._search_tmdbweb:
+                                # 从网站查询
+                                file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
+                                                                         mtype=meta_info.type)
+                            if not file_media_info and self._search_keyword:
+                                cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
+                                is_movie = False
+                                if not cache_name:
+                                    cache_name, is_movie = self.__search_engine(meta_info.get_name())
+                                    cacheman["tmdb_supply"].set(meta_info.get_name(), cache_name)
+                                if cache_name:
+                                    log.info("【Meta】开始辅助查询：%s ..." % cache_name)
+                                    if is_movie:
+                                        file_media_info = self.__search_tmdb(file_media_name=cache_name,
+                                                                             search_type=MediaType.MOVIE)
+                                    else:
+                                        file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
+                            # 补全TMDB信息
+                            if file_media_info and not file_media_info.get("genres"):
+                                file_media_info = self.get_tmdb_info(mtype=file_media_info.get("media_type"),
+                                                                     tmdbid=file_media_info.get("id"),
+                                                                     chinese=chinese)
+                            # 保存到缓存
+                            if file_media_info is not None:
+                                self.__insert_media_cache(media_key=media_key,
+                                                          file_media_info=file_media_info)
                         else:
-                            # 缓存为未识别
-                            file_media_info = None
-                    # 赋值TMDB信息
-                    meta_info.set_tmdb_info(file_media_info)
+                            # 使用缓存信息
+                            cache_info = self.meta.get_meta_data_by_key(media_key)
+                            if cache_info.get("id"):
+                                file_media_info = self.get_tmdb_info(mtype=cache_info.get("type"),
+                                                                     tmdbid=cache_info.get("id"),
+                                                                     chinese=chinese)
+                            else:
+                                # 缓存为未识别
+                                file_media_info = None
+                        # 赋值TMDB信息
+                        meta_info.set_tmdb_info(file_media_info)
                 # 自带TMDB信息
                 else:
                     meta_info = MetaInfo(title=file_name, mtype=media_type)
@@ -1923,9 +1926,13 @@ class Media:
                 r_dict[s.lower()] = score
 
         bing_url = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1" % feature_name
+        bing_url_world = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1&ensearch=1" % feature_name
+        baidubk_url = "https://baike.baidu.com/search/word?fromModule=lemma_search-box&lemmaId=&word=%s" % feature_name
         baidu_url = "https://www.baidu.com/s?ie=utf-8&tn=baiduhome_pg&wd=%s" % feature_name
-        res_bing = RequestUtils(timeout=5).get_res(url=bing_url)
-        res_baidu = RequestUtils(timeout=5).get_res(url=baidu_url)
+        cookie = {'MUID': '36D3197785286A5D33FC0AB884FA6BAA'}
+        res_bing = RequestUtils(timeout=20, cookies=cookie).get_res(url=bing_url_world)
+        # res_bing_world = RequestUtils(timeout=20,cookies=cookie).get_res(url=bing_url_world)
+        res_baidu = RequestUtils(timeout=20).get_res(url=baidu_url)
         ret_dict = {}
         if res_bing and res_bing.status_code == 200:
             html_text = res_bing.text
@@ -1937,12 +1944,15 @@ class Media:
                            map(lambda x: x.text, html.cssselect(
                                "#sp_requery strong, #sp_recourse strong, #tile_link_cn strong, .b_ad .ad_esltitle~div strong, h2 strong, .b_caption p strong, .b_snippetBigText strong, .recommendationsTableTitle+.b_slideexp strong, .recommendationsTableTitle+table strong, .recommendationsTableTitle+ul strong, .pageRecoContainer .b_module_expansion_control strong, .pageRecoContainer .b_title>strong, .b_rs strong, .b_rrsr strong, #dict_ans strong, .b_listnav>.b_ans_stamp>strong, #b_content #ans_nws .na_cnt strong, .adltwrnmsg strong"))))
                 if strongs_bing:
-                    title = html.xpath("//aside//h2[@class = \" b_entityTitle\"]/text()")
+                    title_1 = html.xpath('//aside//span[@class="l_ecrd_imcolheader_ttl l_ecrd_txt_heros"]/text()')
+                    title_2 = html.xpath('//aside//h2[@class=" b_entityTitle"]/text()')
+                    title_english = html.xpath('//span[@class="ent-dtab-nam-ov-dtp ent-dtab-tabuxv1"]/text()')
+                    title = title_1 if title_1 else title_2
                     if len(title) > 0:
                         if title:
                             t = re.compile(r"\s*\(\d{4}\)$").sub("", title[0])
                             ret_dict[t] = 200
-                            if html.xpath("//aside//div[@data-feedbk-ids = \"Movie\"]"):
+                            if 'Film' in html.xpath('//span[@class="ent-dtab-dtxt-ov ent-dtab-tabuxv1"]/text()')[0]:
                                 is_movie = True
                     cal_score(strongs_bing, ret_dict)
         if res_baidu and res_baidu.status_code == 200:
@@ -1958,7 +1968,7 @@ class Media:
         if not ret_dict:
             return None, False
         ret = sorted(ret_dict.items(), key=lambda d: d[1], reverse=True)
-        log.info("【Meta】推断关键字为：%s ..." % ([k[0] for i, k in enumerate(ret) if i < 4]))
+        print("【Meta】推断关键字为：%s ..." % ([k[0] for i, k in enumerate(ret) if i < 4]))
         if len(ret) == 1:
             keyword = ret[0][0]
         else:
@@ -1982,7 +1992,7 @@ class Media:
 
             else:
                 keyword = pre[0]
-        log.info("【Meta】选择关键字为：%s " % keyword)
+        print("【Meta】选择关键字为：%s " % keyword)
         return keyword, is_movie
 
     @staticmethod
