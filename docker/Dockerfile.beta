@@ -1,11 +1,11 @@
-FROM python:3.10.11-alpine
+FROM miraclemie/python:3.10.11-alpine
 RUN apk add --no-cache --virtual .build-deps \
         libffi-dev \
         gcc \
         musl-dev \
         libxml2-dev \
         libxslt-dev \
-    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/SGDOWNLOADER/Nastools/dev/package_list-beta.txt)) \
+    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/SGDOWNLOADER/Nastools/dev/package_list.txt)) \
     && curl https://rclone.org/install.sh | bash \
     && if [ "$(uname -m)" = "x86_64" ]; then ARCH=amd64; elif [ "$(uname -m)" = "aarch64" ]; then ARCH=arm64; fi \
     && curl https://dl.min.io/client/mc/release/linux-${ARCH}/mc --create-dirs -o /usr/bin/mc \
@@ -17,11 +17,7 @@ RUN apk add --no-cache --virtual .build-deps \
     && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/* \
     && pip cache purge
-ENV LANG="C.UTF-8" \
-	TZ="Asia/Shanghai" \
-    PYPI_MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple" \
-    ALPINE_MIRROR="mirrors.ustc.edu.cn" \
-    NASTOOL_CONFIG="/config/config.yaml" \
+ENV NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
     NASTOOL_CN_UPDATE=true \
     NASTOOL_VERSION=dev \
