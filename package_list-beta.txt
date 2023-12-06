@@ -1,0 +1,13 @@
+git
+tzdata
+su-exec
+zip
+curl
+bash
+fuse
+xvfb
+inotify-tools
+chromium-chromedriver
+npm
+dumb-init
+ffmpeg
