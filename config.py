@@ -5,7 +5,7 @@ from threading import Lock
 import ruamel.yaml
 
 # 种子名/文件名要素分隔字符
-SPLIT_CHARS = r"\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|~"
+SPLIT_CHARS = r"\.|\s{2,}|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|~"
 # 默认User-Agent
 DEFAULT_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
@@ -75,7 +75,8 @@ KEYWORD_DIFF_SCORE_THRESHOLD = 30
 KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版',
                      '法语', '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', 'www.DDHDTV.com', '高清剧集网发布', 'DDHDTV', '无删减版', '完成版', '德意']
-
+# 字幕组
+ZIMUZU_LIST = ['ANi', 'Nekomoe kissaten&LoliHouse']
 # WebDriver路径
 WEBDRIVER_PATH = {
     "Docker": "/usr/lib/chromium/chromedriver",

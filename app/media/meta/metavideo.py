@@ -31,6 +31,7 @@ class MetaVideo(MetaBase):
     _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^DV$|^3D$|^REPACK$"
     _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
+    _name_no_begin_re_zh = r"^\【.+?】"
     _name_no_chinese_re = r".*版|.*字幕"
     _name_se_words = ['共', '第', '季', '集', '话', '話', '期']
     _name_nostring_re = r"^PTS|^JADE|^AOD|^CHC|^[A-Z]{1,4}TV[\-0-9UVHDK]*" \
@@ -63,10 +64,20 @@ class MetaVideo(MetaBase):
             self.begin_episode = int(os.path.splitext(title)[0])
             self.type = MediaType.TV
             return
+        # 除掉干扰识别选项
         # 去掉名称中第1个[]的内容
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
+        # 去掉名称中第1个【】的内容
+        title = re.sub(r'%s' % self._name_no_begin_re_zh, "", title, count=1)
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
+        # 过滤年份
+        if '【' in title:
+            title = re.compile(r".*【\d{4}】", re.IGNORECASE).sub("", title)
+        elif '[' in title:
+            title = re.compile(r".*[\d{4}]", re.IGNORECASE).sub("", title)
+        else:
+            title = re.compile(r".*(\d{4})", re.IGNORECASE).sub("", title)
         # 把大小去掉
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         # 把年月日去掉

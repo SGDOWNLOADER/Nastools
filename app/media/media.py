@@ -806,20 +806,14 @@ class Media:
                     meta_info = MetaInfo(title=file_name)
                     # 识别不到则使用上级的名称
                     if not meta_info.get_name() or not meta_info.year:
-                        # 根据默认的配置处理该文件名（自定义识别词）
-                        file_name_modify, msg, used_info = WordsHelper().process(file_name)
-                        # 判断上层目录是否存在S01或者season 1(适用于手动规整目录S01（三级目录,例如：/鬼武者/S01/01.HD中字.mp4）)
+                        # 判断三级目录:上层目录是否存在S01或者season 1(适用于手动规整目录S01（例如：/鬼武者/S01/01.HD中字.mp4）)
                         season_pat = re.compile("(" + "|".join(season_name_ls) + ")", flags=re.IGNORECASE)
-                        if not season_pat.match(parent_name):
-                            parent_info = MetaInfo(parent_name)
-                            season_flag = False
-                        else:
+                        if season_pat.match(parent_name) and parent_parent_name:
                             parent_info = MetaInfo(parent_parent_name)
                             season_flag = True
-                        parent_name = file_name_modify
-                        if msg:
-                            for msg_item in msg:
-                                log.warn("【Meta】%s" % msg_item)
+                        else:
+                            parent_info = MetaInfo(parent_name)
+                            season_flag = False
                         if not parent_info.get_name() or not parent_info.year:
                             parent_parent_info = MetaInfo(parent_parent_name)
                             parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
@@ -827,10 +821,11 @@ class Media:
                             parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                             if season_flag:
-                                parent_info.begin_season = int(re.findall("\d+", parent_name, flags=re.IGNORECASE)[0])
+                                parent_info.begin_season = int(re.findall(r"\d+", parent_name, flags=re.IGNORECASE)[0])
                             else:
                                 parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                                parent_parent_info.begin_season)
+
                         if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
                             meta_info.en_name = parent_info.en_name
@@ -1923,9 +1918,13 @@ class Media:
                 r_dict[s.lower()] = score
 
         bing_url = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1" % feature_name
+        bing_url_world = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1&ensearch=1" % feature_name
+        baidubk_url = "https://baike.baidu.com/search/word?fromModule=lemma_search-box&lemmaId=&word=%s" % feature_name
         baidu_url = "https://www.baidu.com/s?ie=utf-8&tn=baiduhome_pg&wd=%s" % feature_name
-        res_bing = RequestUtils(timeout=5).get_res(url=bing_url)
-        res_baidu = RequestUtils(timeout=5).get_res(url=baidu_url)
+        cookie = {'MUID': '36D3197785286A5D33FC0AB884FA6BAA'}
+        res_bing = RequestUtils(timeout=20, cookies=cookie).get_res(url=bing_url_world)
+        # res_bing_world = RequestUtils(timeout=20,cookies=cookie).get_res(url=bing_url_world)
+        res_baidu = RequestUtils(timeout=20).get_res(url=baidu_url)
         ret_dict = {}
         if res_bing and res_bing.status_code == 200:
             html_text = res_bing.text
@@ -1937,13 +1936,17 @@ class Media:
                            map(lambda x: x.text, html.cssselect(
                                "#sp_requery strong, #sp_recourse strong, #tile_link_cn strong, .b_ad .ad_esltitle~div strong, h2 strong, .b_caption p strong, .b_snippetBigText strong, .recommendationsTableTitle+.b_slideexp strong, .recommendationsTableTitle+table strong, .recommendationsTableTitle+ul strong, .pageRecoContainer .b_module_expansion_control strong, .pageRecoContainer .b_title>strong, .b_rs strong, .b_rrsr strong, #dict_ans strong, .b_listnav>.b_ans_stamp>strong, #b_content #ans_nws .na_cnt strong, .adltwrnmsg strong"))))
                 if strongs_bing:
-                    title = html.xpath("//aside//h2[@class = \" b_entityTitle\"]/text()")
+                    title_1 = html.xpath('//aside//span[@class="l_ecrd_imcolheader_ttl l_ecrd_txt_heros"]/text()')
+                    title_2 = html.xpath('//aside//h2[@class=" b_entityTitle"]/text()')
+                    title_english = html.xpath('//span[@class="ent-dtab-nam-ov-dtp ent-dtab-tabuxv1"]/text()')
+                    title = title_1 if title_1 else title_2
                     if len(title) > 0:
                         if title:
                             t = re.compile(r"\s*\(\d{4}\)$").sub("", title[0])
                             ret_dict[t] = 200
-                            if html.xpath("//aside//div[@data-feedbk-ids = \"Movie\"]"):
-                                is_movie = True
+                            if title_english:
+                                if 'Film' in html.xpath('//span[@class="ent-dtab-dtxt-ov ent-dtab-tabuxv1"]/text()')[0]:
+                                    is_movie = True
                     cal_score(strongs_bing, ret_dict)
         if res_baidu and res_baidu.status_code == 200:
             html_text = res_baidu.text
@@ -1958,7 +1961,7 @@ class Media:
         if not ret_dict:
             return None, False
         ret = sorted(ret_dict.items(), key=lambda d: d[1], reverse=True)
-        log.info("【Meta】推断关键字为：%s ..." % ([k[0] for i, k in enumerate(ret) if i < 4]))
+        print("【Meta】推断关键字为：%s ..." % ([k[0] for i, k in enumerate(ret) if i < 4]))
         if len(ret) == 1:
             keyword = ret[0][0]
         else:
@@ -1982,7 +1985,7 @@ class Media:
 
             else:
                 keyword = pre[0]
-        log.info("【Meta】选择关键字为：%s " % keyword)
+        print("【Meta】选择关键字为：%s " % keyword)
         return keyword, is_movie
 
     @staticmethod
