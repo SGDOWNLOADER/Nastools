@@ -1944,8 +1944,9 @@ class Media:
                         if title:
                             t = re.compile(r"\s*\(\d{4}\)$").sub("", title[0])
                             ret_dict[t] = 200
-                            if 'Film' in html.xpath('//span[@class="ent-dtab-dtxt-ov ent-dtab-tabuxv1"]/text()')[0]:
-                                is_movie = True
+                            if title_english:
+                                if 'Film' in html.xpath('//span[@class="ent-dtab-dtxt-ov ent-dtab-tabuxv1"]/text()')[0]:
+                                    is_movie = True
                     cal_score(strongs_bing, ret_dict)
         if res_baidu and res_baidu.status_code == 200:
             html_text = res_baidu.text
