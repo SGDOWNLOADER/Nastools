@@ -72,16 +72,13 @@ class MetaVideo(MetaBase):
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
         # 过滤年份
-        if '【' in title:
-            title = re.compile(r".*【\d{4}】", re.IGNORECASE).sub("", title)
-        elif '[' in title:
-            title = re.compile(r".*[\d{4}]", re.IGNORECASE).sub("", title)
-        else:
-            title = re.compile(r".*(\d{4})", re.IGNORECASE).sub("", title)
+        title = re.compile(r"(19\d{2}|20[1-4][0-9])", re.IGNORECASE).sub("", title)
         # 把大小去掉
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         # 把年月日去掉
         title = re.sub(r'\d{4}[\s._-]\d{1,2}[\s._-]\d{1,2}', "", title)
+        # 把末尾的(编码)去掉
+        title = re.sub(r'\(\w+\)', "", title)
         # 拆分tokens
         tokens = Tokens(title)
         self.tokens = tokens
