@@ -3120,7 +3120,7 @@ class WebAction:
             import_code = data.get('import_code')
             string = base64.b64decode(import_code.encode(
                 "utf-8")).decode('utf-8').split("@@@@@@")
-            note_string = string[1]
+            note_string = string[1] if len(string) > 1 else None
             import_dict = json.loads(string[0])
             groups = []
             for group in import_dict.values():
