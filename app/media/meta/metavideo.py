@@ -4,7 +4,7 @@ import re
 from config import RMT_MEDIAEXT
 from app.media.meta._base import MetaBase
 from app.utils import StringUtils
-from app.utils.tokens import Tokens
+from app.utils.tokens import Tokens, get_spc_priority
 from app.utils.types import MediaType
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 
@@ -51,8 +51,7 @@ class MetaVideo(MetaBase):
     _resources_pix_re2 = r"(^[248]+K)"
     _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
-    _file_md5_re = r''
-    _other_re = r"\[(?:★|❤|GB|BIG5|JP|KR|CN|TW|US|SG|招募翻译(?:校对)?|招募翻譯(?:校對)?|X265_Main10p_Flac_Chap)\]"
+    _other_re = r"\[(?:★|❤|GB|BIG5|JP|KR|CN|TW|US|SG|招募翻译(?:校对)?|招募翻譯(?:校對)?)\]"
 
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
@@ -68,12 +67,16 @@ class MetaVideo(MetaBase):
             self.begin_episode = int(os.path.splitext(title)[0])
             self.type = MediaType.TV
             return
-        # 除掉干扰识别选项
+
         # 去掉名称中第1个[]的内容(非字幕组不做处理)
         if not ReleaseGroupsMatcher.match(title):
             title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
             # 去掉名称中第1个【】的内容(非字幕组不做处理)
             title = re.sub(r'%s' % self._name_no_begin_re_zh, "", title, count=1)
+        # 整体替换
+        title = re.sub(r"[*?\\/\"<>~|]", "", title, flags=re.IGNORECASE) \
+            .replace("【", "[") \
+            .replace("】", "]")
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
         # 过滤年份
@@ -87,7 +90,7 @@ class MetaVideo(MetaBase):
         # 去除多音轨标志
         title = re.sub(r'\d+Audio', '', title)
         # 把末尾的文件编码去掉
-
+        title = title.replace(get_file_md5(title), '')
         # 去除其他不重要的信息
         title = re.sub(r'%s' % self._other_re, '', title, flags=re.IGNORECASE)
         # 中括号里单独的数字大概率是集数
@@ -100,9 +103,6 @@ class MetaVideo(MetaBase):
         while token:
             # Part
             self.__init_part(token)
-            # 文件md5
-            if self._continue_flag:
-                self.__init_file_md5(token)
             # 标题
             if self._continue_flag:
                 self.__init_name(token)
@@ -570,17 +570,11 @@ class MetaVideo(MetaBase):
                     self.audio_encode = "%s %s" % (self.audio_encode, token)
             self._last_token = token
 
-    def __init_file_md5(self, token):
-        if not self.get_name():
-            return
-        re_res = is_crc32(token)
+
+# 获取文件md5编码
+def get_file_md5(title):
+    title_ls = get_spc_priority(title)
+    for text in title_ls:
+        re_res = len(text) == 8 and all([char in '1234567890abcdefABCDEF' for char in text])
         if re_res:
-            self.file_md5 = token
-
-
-
-def is_crc32(string):
-    return len(string) == 8 and is_hexadecimal_string(string)
-
-def is_hexadecimal_string(string):
-    return all([char in '1234567890abcdefABCDEF' for char in string])
+            return text

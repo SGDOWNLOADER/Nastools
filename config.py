@@ -7,7 +7,7 @@ import ruamel.yaml
 # 种子名/文件名要素分隔字符
 SPLIT_CHARS = r"\.|\s{2,}|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|~"
 # 优先级1
-SPLIT_CHARS_1 = r'\[|]|【|】|「|」'
+SPLIT_CHARS_1 = r'\.|\[|]|【|】|「|」|\(|\)|（|）'
 # 优先级2(暂定)
 SPLIT_CHARS_2 = r'\W+'
 
@@ -109,10 +109,6 @@ _episode_re_2 = r"(?<![a-zA-Z0-9_])(?i)(?:e|ep|episode)\s*0*\d+"
 _numbers_re = r"\d+|[一二三四五六七八九十]+"
 
 
-episode_name_ls = ['ep\d+', 'e\d+', '第\d+']
-
-# 季数过滤
-season_name_ls = ['season \d+','s\d+']
 
 # Xvfb虚拟显示路程
 XVFB_PATH = [
@@ -144,7 +140,7 @@ class Config(object):
     _config_path = None
 
     def __init__(self):
-        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') else r'E:\codes\github\Nastools\config\config.yaml'
+        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') else r'F:\codes\github\Nastools\config\config.yaml'
         if not os.environ.get('TZ'):
             os.environ['TZ'] = 'Asia/Shanghai'
         self.init_syspath()
