@@ -6,6 +6,11 @@ import ruamel.yaml
 
 # 种子名/文件名要素分隔字符
 SPLIT_CHARS = r"\.|\s{2,}|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|~"
+# 优先级1
+SPLIT_CHARS_1 = r'\[|]|【|】|「|」'
+# 优先级2(暂定)
+SPLIT_CHARS_2 = r'\W+'
+
 # 默认User-Agent
 DEFAULT_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
@@ -88,7 +93,22 @@ _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|(
 _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話期]"
 _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*[集话話期]"
 
-# 集数字样过滤
+# 季组
+_seasons_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)?\s*\.\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
+_seasons_re_2 = r"(?:[Ss]0*|Season|season)([0-9]+)\s*\.\s*(?:[Ss]0*|Season|season)([0-9]+)"
+# 季
+_season_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
+_season_re_2 = r"(?<![a-zA-Z0-9_])(?i)[sS](eason)?\s*0*\d+"
+# 集组
+_episodes_re_1 = r"(?:第)?\s*(?<![sS])(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)?\s*\.\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)"
+_episodes_re_2 = r"(?:[Ee]0*|episode|ep)([0-9]+)\s*\.\s*(?:[Ee]0*|episode|ep)([0-9]+)"
+# 集
+_episode_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)"
+_episode_re_2 = r"(?<![a-zA-Z0-9_])(?i)(?:e|ep|episode)\s*0*\d+"
+
+_numbers_re = r"\d+|[一二三四五六七八九十]+"
+
+
 episode_name_ls = ['ep\d+', 'e\d+', '第\d+']
 
 # 季数过滤

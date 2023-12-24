@@ -1,6 +1,6 @@
 import re
 
-from config import SPLIT_CHARS
+from config import SPLIT_CHARS, SPLIT_CHARS_1, SPLIT_CHARS_2
 
 
 class Tokens:
@@ -14,7 +14,10 @@ class Tokens:
         self.load_text(text)
 
     def load_text(self, text):
-        splited_text = re.split(r'%s' % SPLIT_CHARS, text)
+        if len(re.findall(SPLIT_CHARS_1, text)) > 6:
+            splited_text = re.split(r'%s' % SPLIT_CHARS_1, text)
+        else:
+            splited_text = re.split(r'%s' % SPLIT_CHARS, text)
         for sub_text in splited_text:
             if sub_text:
                 self._tokens.append(sub_text)
