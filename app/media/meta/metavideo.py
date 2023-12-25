@@ -90,7 +90,8 @@ class MetaVideo(MetaBase):
         # 去除多音轨标志
         title = re.sub(r'\d+Audio', '', title)
         # 把末尾的文件编码去掉
-        title = title.replace(get_file_md5(title), '')
+        if get_file_md5(title):
+            title = title.replace(get_file_md5(title), '')
         # 去除其他不重要的信息
         title = re.sub(r'%s' % self._other_re, '', title, flags=re.IGNORECASE)
         # 中括号里单独的数字大概率是集数
