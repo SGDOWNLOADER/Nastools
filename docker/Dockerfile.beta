@@ -2,6 +2,7 @@ FROM miraclemie/python:3.10.11-alpine
 RUN apk add --no-cache --virtual .build-deps \
         libffi-dev \
         gcc \
+        g++ \
         musl-dev \
         libxml2-dev \
         libxslt-dev \

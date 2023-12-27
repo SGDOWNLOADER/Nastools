@@ -1,7 +1,7 @@
 import re
 import cn2an
 from app.media.fanart import Fanart
-from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
+from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL, _subtitle_season_re, _subtitle_season_all_re, _subtitle_episode_re, _subtitle_episode_all_re
 from app.media.category import Category
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
@@ -136,10 +136,7 @@ class MetaBase(object):
     note = {}
     # 副标题解析
     _subtitle_flag = False
-    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
-    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
-    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話期]"
-    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*[集话話期]"
+
 
     def __init__(self, title, subtitle=None, fileflag=False):
         self.category_handler = Category()

@@ -4,7 +4,7 @@ import re
 from config import RMT_MEDIAEXT
 from app.media.meta._base import MetaBase
 from app.utils import StringUtils
-from app.utils.tokens import Tokens
+from app.utils.tokens import Tokens, get_spc_priority
 from app.utils.types import MediaType
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 
@@ -32,6 +32,8 @@ class MetaVideo(MetaBase):
     _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
     _name_no_begin_re_zh = r"^\【.+?】"
+    _years_re = r"(\d{4}(?!p|P))\s*\.\s*(\d{4})(?![pP])"
+    _release_date_re = r"\d{2,4}年\d+(?:月)?(?:新番|合集|)"
     _name_no_chinese_re = r".*版|.*字幕"
     _name_se_words = ['共', '第', '季', '集', '话', '話', '期']
     _name_nostring_re = r"^PTS|^JADE|^AOD|^CHC|^[A-Z]{1,4}TV[\-0-9UVHDK]*" \
@@ -49,6 +51,7 @@ class MetaVideo(MetaBase):
     _resources_pix_re2 = r"(^[248]+K)"
     _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
+    _other_re = r"\[(?:★|❤|GB|BIG5|JP|KR|CN|TW|US|SG|招募翻译(?:校对)?|招募翻譯(?:校對)?)\]"
 
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
@@ -64,11 +67,16 @@ class MetaVideo(MetaBase):
             self.begin_episode = int(os.path.splitext(title)[0])
             self.type = MediaType.TV
             return
-        # 除掉干扰识别选项
-        # 去掉名称中第1个[]的内容
-        title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
-        # 去掉名称中第1个【】的内容
-        title = re.sub(r'%s' % self._name_no_begin_re_zh, "", title, count=1)
+
+        # 去掉名称中第1个[]的内容(非字幕组不做处理)
+        if not ReleaseGroupsMatcher.match(title):
+            title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
+            # 去掉名称中第1个【】的内容(非字幕组不做处理)
+            title = re.sub(r'%s' % self._name_no_begin_re_zh, "", title, count=1)
+        # 整体替换
+        title = re.sub(r"[*?\\/\"<>~|]", "", title, flags=re.IGNORECASE) \
+            .replace("【", "[") \
+            .replace("】", "]")
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
         # 过滤年份
@@ -77,8 +85,17 @@ class MetaVideo(MetaBase):
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         # 把年月日去掉
         title = re.sub(r'\d{4}[\s._-]\d{1,2}[\s._-]\d{1,2}', "", title)
-        # 把末尾的(编码)去掉
-        title = re.sub(r'\(\w+\)', "", title)
+        # 去除XX月新番
+        title = re.sub(r'%s' % self._release_date_re, '', title)
+        # 去除多音轨标志
+        title = re.sub(r'\d+Audio', '', title)
+        # 把末尾的文件编码去掉
+        if get_file_md5(title):
+            title = title.replace(get_file_md5(title), '')
+        # 去除其他不重要的信息
+        title = re.sub(r'%s' % self._other_re, '', title, flags=re.IGNORECASE)
+        # 中括号里单独的数字大概率是集数
+        title = re.sub(r'\[(\d+)\]', r'[E\1]', title, flags=re.IGNORECASE)
         # 拆分tokens
         tokens = Tokens(title)
         self.tokens = tokens
@@ -553,3 +570,12 @@ class MetaVideo(MetaBase):
                 else:
                     self.audio_encode = "%s %s" % (self.audio_encode, token)
             self._last_token = token
+
+
+# 获取文件md5编码
+def get_file_md5(title):
+    title_ls = get_spc_priority(title)
+    for text in title_ls:
+        re_res = len(text) == 8 and all([char in '1234567890abcdefABCDEF' for char in text])
+        if re_res:
+            return text

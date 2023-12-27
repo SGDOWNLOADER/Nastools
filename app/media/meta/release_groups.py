@@ -68,7 +68,8 @@ class ReleaseGroupsMatcher(object):
         "ultrahd": [],
         "others": ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)',
                    'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )'],
-        "anime": ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组']
+        "anime": ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组',
+                  '夜莺家族&YYQ字幕组', 'OPFansMaplesnow', 'orion origin', 'SBSUB', 'FYSub', 'c.c動漫', 'c.c动漫',]
     }
 
     def __init__(self):
@@ -101,3 +102,7 @@ class ReleaseGroupsMatcher(object):
         title = f"{title} "
         groups_re = re.compile(r"(?<=[-@\[￡【])(?:%s)(?=[@.\s\]\[】])" % groups, re.I)
         return '@'.join(re.findall(groups_re, title))
+
+if __name__ == '__main__':
+    rsg = ReleaseGroupsMatcher()
+    print(rsg.match('[Nekomoe kissaten][CONAN][1107][1080P][AVC_AAC][CHS_JP](CFE124D2).mp4'), type(rsg.match('[Nekomoe kissaten][CONAN][1107][1080P][AVC_AAC][CHS_JP](CFE124D2).mp4')))
