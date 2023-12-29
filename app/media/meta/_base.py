@@ -602,7 +602,7 @@ class MetaBase(object):
             return
         if re.search(r'[全第季集话話期]', title_text, re.IGNORECASE):
             # 第x季
-            season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
+            season_str = re.search(r'%s' % _subtitle_season_re, title_text, re.IGNORECASE)
             if season_str:
                 seasons = season_str.group(1)
                 if seasons:
@@ -633,7 +633,7 @@ class MetaBase(object):
                 self.type = MediaType.TV
                 self._subtitle_flag = True
             # 第x集
-            episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
+            episode_str = re.search(r'%s' % _subtitle_episode_re, title_text, re.IGNORECASE)
             if episode_str:
                 episodes = episode_str.group(1)
                 if episodes:
@@ -664,14 +664,14 @@ class MetaBase(object):
                 self.type = MediaType.TV
                 self._subtitle_flag = True
             # x集全
-            episode_all_str = re.search(r'%s' % self._subtitle_episode_all_re, title_text, re.IGNORECASE)
+            episode_all_str = re.search(r'%s' % _subtitle_episode_all_re, title_text, re.IGNORECASE)
             if episode_all_str:
                 self.begin_episode = None
                 self.end_episode = None
                 self.total_episodes = 0
                 self.type = MediaType.TV
             # 全x季 x季全
-            season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
+            season_all_str = re.search(r"%s" % _subtitle_season_all_re, title_text, re.IGNORECASE)
             if season_all_str:
                 season_all = season_all_str.group(1)
                 if not season_all:
