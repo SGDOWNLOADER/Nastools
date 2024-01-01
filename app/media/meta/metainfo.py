@@ -5,6 +5,7 @@ import log
 from app.helper import WordsHelper
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
+from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils.types import MediaType
 from config import RMT_MEDIAEXT
 
@@ -57,9 +58,13 @@ def is_anime(name):
         return True
     if re.search(r'\s+-\s+[\dv]{1,4}\s+', name, re.IGNORECASE):
         return True
+    # 根据常见的动漫字幕组进行判断
+    if re.search(rf'{"|".join(ReleaseGroupsMatcher.RELEASE_GROUPS.get("anime"))}', name, re.IGNORECASE):
+        return True
     if re.search(r"S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}", name,
                  re.IGNORECASE):
         return False
     if re.search(r'\[[+0-9XVPI-]+]\s*\[', name, re.IGNORECASE):
         return True
     return False
+

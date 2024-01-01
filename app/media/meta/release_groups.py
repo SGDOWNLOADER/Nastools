@@ -69,7 +69,8 @@ class ReleaseGroupsMatcher(object):
         "others": ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)',
                    'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )'],
         "anime": ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组',
-                  '夜莺家族&YYQ字幕组', 'OPFansMaplesnow', 'orion origin', 'SBSUB', 'FYSub', 'c.c動漫', 'c.c动漫',]
+                  '夜莺家族&YYQ字幕组', 'OPFansMaplesnow', 'orion origin', 'SBSUB', 'FYSub', 'c.c動漫', 'c.c动漫',
+                  'Suzu-Kaze&POPGO', '天月动漫&发布组', '动漫国字幕组', '桜都字幕组']
     }
 
     def __init__(self):
