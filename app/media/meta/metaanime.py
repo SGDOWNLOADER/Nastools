@@ -7,6 +7,7 @@ from app.media.meta._base import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
+from config import _name_no_begin_re
 
 
 class MetaAnime(MetaBase):
@@ -15,6 +16,7 @@ class MetaAnime(MetaBase):
     """
     _anime_no_words = ['CHS&CHT', 'MP4', 'GB MP4', 'WEB-DL', 'CHT', 'CHS']
     _name_nostring_re = r"S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}"
+
 
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
@@ -27,6 +29,7 @@ class MetaAnime(MetaBase):
             anitopy_info_origin = anitopy.parse(title)
             title = self.__prepare_title(title)
             anitopy_info = anitopy.parse(title)
+            print(title, anitopy_info)
             if anitopy_info:
                 # 名称
                 name = anitopy_info.get("anime_title")
@@ -172,6 +175,8 @@ class MetaAnime(MetaBase):
             return title
         # 所有【】换成[]
         title = title.replace("【", "[").replace("】", "]").strip()
+        # 去掉字幕组
+        title = re.sub(r'%s' % _name_no_begin_re, "", title, count=1)
         # 截掉xx番剧漫
         match = re.search(r"新番|月?番|[日美国][漫剧]", title)
         if match and match.span()[1] < len(title) - 1:
