@@ -104,6 +104,3 @@ class ReleaseGroupsMatcher(object):
         groups_re = re.compile(r"(?<=[-@\[￡【])(?:%s)(?=[@.\s\]\[】])" % groups, re.I)
         return '@'.join(re.findall(groups_re, title))
 
-if __name__ == '__main__':
-    rsg = ReleaseGroupsMatcher()
-    print(rsg.match('[Nekomoe kissaten][CONAN][1107][1080P][AVC_AAC][CHS_JP](CFE124D2).mp4'), type(rsg.match('[Nekomoe kissaten][CONAN][1107][1080P][AVC_AAC][CHS_JP](CFE124D2).mp4')))

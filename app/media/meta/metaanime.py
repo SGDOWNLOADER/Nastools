@@ -17,7 +17,6 @@ class MetaAnime(MetaBase):
     _anime_no_words = ['CHS&CHT', 'MP4', 'GB MP4', 'WEB-DL', 'CHT', 'CHS']
     _name_nostring_re = r"S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}"
 
-
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
         if not title:
@@ -29,7 +28,6 @@ class MetaAnime(MetaBase):
             anitopy_info_origin = anitopy.parse(title)
             title = self.__prepare_title(title)
             anitopy_info = anitopy.parse(title)
-            print(title, anitopy_info)
             if anitopy_info:
                 # 名称
                 name = anitopy_info.get("anime_title")
@@ -196,30 +194,30 @@ class MetaAnime(MetaBase):
         # 将4K转为2160p
         title = re.sub(r'\[4k]', '2160p', title, flags=re.IGNORECASE)
         # 处理/分隔的中英文标题
-        names = title.split("]")
-        if len(names) > 1 and title.find("- ") == -1:
-            titles = []
-            for name in names:
-                if not name:
-                    continue
-                left_char = ''
-                if name.startswith('['):
-                    left_char = '['
-                    name = name[1:]
-                if name and name.find("/") != -1:
-                    if name.split("/")[-1].strip():
-                        titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
-                    else:
-                        titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
-                elif name:
-                    if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
-                        if not re.search(r"\[\d+", name, re.IGNORECASE):
-                            name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
-                        if not name or name.strip().isdigit():
-                            continue
-                    if name == '[':
-                        titles.append("")
-                    else:
-                        titles.append("%s%s" % (left_char, name.strip()))
-            return "]".join(titles)
+        # names = title.split("]")
+        # if len(names) > 1 and title.find("- ") == -1:
+        #     titles = []
+        #     for name in names:
+        #         if not name:
+        #             continue
+        #         left_char = ''
+        #         if name.startswith('['):
+        #             left_char = '['
+        #             name = name[1:]
+        #         if name and name.find("/") != -1:
+        #             if name.split("/")[-1].strip():
+        #                 titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
+        #             else:
+        #                 titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
+        #         elif name:
+        #             if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
+        #                 if not re.search(r"\[\d+", name, re.IGNORECASE):
+        #                     name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
+        #                 if not name or name.strip().isdigit():
+        #                     continue
+        #             if name == '[':
+        #                 titles.append("")
+        #             else:
+        #                 titles.append("%s%s" % (left_char, name.strip()))
+        #     return "]".join(titles)
         return title
