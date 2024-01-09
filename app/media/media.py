@@ -10,7 +10,7 @@ import zhconv
 from lxml import etree
 
 import log
-from app.helper import MetaHelper, WordsHelper
+from app.helper import MetaHelper, WordsHelper, DbHelper
 from app.media.meta.metainfo import MetaInfo
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException, Discover, Trending, Episode, Genre
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
@@ -76,6 +76,7 @@ class Media:
             self.genre = Genre()
         # 元数据缓存
         self.meta = MetaHelper()
+        self.dbhelper = DbHelper()
         # 匹配模式
         rmt_match_mode = app.get('rmt_match_mode', 'normal')
         if rmt_match_mode:
@@ -804,46 +805,35 @@ class Media:
                 # 没有自带TMDB信息
                 if not tmdb_info:
                     # 识别名称
-                    meta_info = MetaInfo(title=file_name)
-                    # 识别不到则使用上级的名称
-                    if not meta_info.get_name() or not meta_info.year:
-                        # 判断三级目录:上层目录是否存在S01或者season 1(适用于手动规整目录S01（例如：/鬼武者/S01/01.HD中字.mp4）)
-                        season_pat = re.compile(f"({_season_re_1}|{_season_re_2})", flags=re.IGNORECASE)
-                        if season_pat.match(parent_name) and parent_parent_name:
-                            parent_info = MetaInfo(parent_parent_name)
-                            season_flag = True
+                    # 判断三级目录:上层目录是否存在S01或者season 1(适用于手动规整目录S01（例如：/鬼武者/S01/01.HD中字.mp4）)
+                    season_pat = re.compile(f"({_season_re_1}|{_season_re_2})", flags=re.IGNORECASE)
+                    if season_pat.match(parent_name) and parent_parent_name:
+                        meta_info = MetaInfo(parent_parent_name)
+                        season_flag = True
+                    else:
+                        # 获取同步目录的最外层目录名
+                        source_list = []
+                        for i in self.dbhelper.get_config_sync_paths():
+                            source_list.append(os.path.split(i.SOURCE)[-1])
+                        meta_info = MetaInfo(parent_name) if parent_name not in source_list else MetaInfo(file_name)
+                        season_flag = False
+                    if meta_info.get_name():
+                        # 补全缺失的信息
+                        file_info = MetaInfo(file_name)
+                        if season_flag:
+                            begin_season_info = season_pat.search(parent_name).group(0)
+                            begin_season_str = re.findall(r'%s' % _numbers_re, begin_season_info, flags=re.IGNORECASE)[
+                                0]
+                            meta_info.begin_season = int(cn2an.cn2an(begin_season_str, "smart"))
                         else:
-                            parent_info = MetaInfo(parent_name)
-                            season_flag = False
-                        if not parent_info.get_name() or not parent_info.year:
-                            parent_parent_info = MetaInfo(parent_parent_name)
-                            parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
-
-                            parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
-                            parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
-                            if season_flag:
-                                # 三层目录以第一层目录的名称为主
-                                parent_info.cn_name = parent_parent_name if StringUtils.is_all_chinese(parent_parent_name) \
-                                    else parent_info.cn_name
-                                begin_season_info = season_pat.search(parent_name).group(0)
-                                begin_season_str = re.findall(r'%s' % _numbers_re, begin_season_info, flags=re.IGNORECASE)[0]
-                                parent_info.begin_season = int(cn2an.cn2an(begin_season_str, "smart"))
-                            else:
-                                parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
-                                parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
-                                                                               parent_parent_info.begin_season)
-
-                        if not meta_info.get_name():
-                            meta_info.cn_name = parent_info.cn_name
-                            meta_info.en_name = parent_info.en_name
-                        if not meta_info.year:
-                            meta_info.year = parent_info.year
-                        if parent_info.type and parent_info.type == MediaType.TV \
-                                and meta_info.type != MediaType.TV:
-                            meta_info.type = parent_info.type
-                        if meta_info.type == MediaType.TV:
-                            meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
-                                                                         meta_info.begin_season)
+                            meta_info.begin_season = NumberUtils.max_ele(meta_info.begin_season, file_info.begin_season)
+                        meta_info.type = file_info.type
+                        meta_info.begin_episode = file_info.begin_episode
+                        meta_info.end_episode = file_info.end_episode
+                        meta_info.total_episodes = file_info.total_episodes
+                    # 识别不到则使用上级的名称
+                    else:
+                        meta_info = MetaInfo(file_name)
                     if not meta_info.get_name() or not meta_info.type:
                         log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
                         continue
