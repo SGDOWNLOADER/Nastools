@@ -2,6 +2,7 @@ import difflib
 import os
 import random
 import re
+import cn2an
 import traceback
 from functools import lru_cache
 
@@ -16,7 +17,7 @@ from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, Strin
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY, \
-    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL, season_name_ls
+    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL, season_name_ls, _season_re_1, _season_re_2, _numbers_re
 
 
 class Media:
@@ -807,7 +808,7 @@ class Media:
                     # 识别不到则使用上级的名称
                     if not meta_info.get_name() or not meta_info.year:
                         # 判断三级目录:上层目录是否存在S01或者season 1(适用于手动规整目录S01（例如：/鬼武者/S01/01.HD中字.mp4）)
-                        season_pat = re.compile("(" + "|".join(season_name_ls) + ")", flags=re.IGNORECASE)
+                        season_pat = re.compile(f"({_season_re_1}|{_season_re_2})", flags=re.IGNORECASE)
                         if season_pat.match(parent_name) and parent_parent_name:
                             parent_info = MetaInfo(parent_parent_name)
                             season_flag = True
@@ -817,12 +818,18 @@ class Media:
                         if not parent_info.get_name() or not parent_info.year:
                             parent_parent_info = MetaInfo(parent_parent_name)
                             parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type != MediaType.TV else parent_info.type
-                            parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
+
                             parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                             if season_flag:
-                                parent_info.begin_season = int(re.findall(r"\d+", parent_name, flags=re.IGNORECASE)[0])
+                                # 三层目录以第一层目录的名称为主
+                                parent_info.cn_name = parent_parent_name if StringUtils.is_all_chinese(parent_parent_name) \
+                                    else parent_info.cn_name
+                                begin_season_info = season_pat.search(parent_name).group(0)
+                                begin_season_str = re.findall(r'%s' % _numbers_re, begin_season_info, flags=re.IGNORECASE)[0]
+                                parent_info.begin_season = int(cn2an.cn2an(begin_season_str, "smart"))
                             else:
+                                parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
                                 parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                                parent_parent_info.begin_season)
 
