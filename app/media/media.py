@@ -815,11 +815,15 @@ class Media:
                         source_list = []
                         for i in self.dbhelper.get_config_sync_paths():
                             source_list.append(os.path.split(i.SOURCE)[-1])
-                        meta_info = MetaInfo(parent_name) if parent_name not in source_list else MetaInfo(file_name)
+                        meta_info = MetaInfo(parent_name) if parent_name not in source_list else MetaInfo('')
                         season_flag = False
                     if meta_info.get_name():
-                        # 补全缺失的信息
-                        file_info = MetaInfo(file_name)
+                        # 增加对file_name的补充识别
+                        if not MetaInfo(file_name).begin_episode or meta_info.get_name() not in file_name:
+                            file_name_new = meta_info.get_name() + '.' + file_name
+                            file_info = MetaInfo(file_name_new)
+                        else:
+                            file_info = MetaInfo(file_name)
                         if season_flag:
                             begin_season_info = season_pat.search(parent_name).group(0)
                             begin_season_str = re.findall(r'%s' % _numbers_re, begin_season_info, flags=re.IGNORECASE)[
@@ -827,6 +831,8 @@ class Media:
                             meta_info.begin_season = int(cn2an.cn2an(begin_season_str, "smart"))
                         else:
                             meta_info.begin_season = NumberUtils.max_ele(meta_info.begin_season, file_info.begin_season)
+                        # 补全缺失的信息
+                        meta_info.begin_season = meta_info.begin_season if meta_info.begin_season else 1
                         meta_info.type = file_info.type
                         meta_info.begin_episode = file_info.begin_episode
                         meta_info.end_episode = file_info.end_episode
