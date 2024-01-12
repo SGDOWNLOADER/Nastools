@@ -7,6 +7,7 @@ from app.media.meta._base import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
+from config import _name_no_begin_re
 
 
 class MetaAnime(MetaBase):
@@ -172,6 +173,8 @@ class MetaAnime(MetaBase):
             return title
         # 所有【】换成[]
         title = title.replace("【", "[").replace("】", "]").strip()
+        # 去掉字幕组
+        title = re.sub(r'%s' % _name_no_begin_re, "", title, count=1)
         # 截掉xx番剧漫
         match = re.search(r"新番|月?番|[日美国][漫剧]", title)
         if match and match.span()[1] < len(title) - 1:
@@ -191,30 +194,30 @@ class MetaAnime(MetaBase):
         # 将4K转为2160p
         title = re.sub(r'\[4k]', '2160p', title, flags=re.IGNORECASE)
         # 处理/分隔的中英文标题
-        names = title.split("]")
-        if len(names) > 1 and title.find("- ") == -1:
-            titles = []
-            for name in names:
-                if not name:
-                    continue
-                left_char = ''
-                if name.startswith('['):
-                    left_char = '['
-                    name = name[1:]
-                if name and name.find("/") != -1:
-                    if name.split("/")[-1].strip():
-                        titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
-                    else:
-                        titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
-                elif name:
-                    if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
-                        if not re.search(r"\[\d+", name, re.IGNORECASE):
-                            name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
-                        if not name or name.strip().isdigit():
-                            continue
-                    if name == '[':
-                        titles.append("")
-                    else:
-                        titles.append("%s%s" % (left_char, name.strip()))
-            return "]".join(titles)
+        # names = title.split("]")
+        # if len(names) > 1 and title.find("- ") == -1:
+        #     titles = []
+        #     for name in names:
+        #         if not name:
+        #             continue
+        #         left_char = ''
+        #         if name.startswith('['):
+        #             left_char = '['
+        #             name = name[1:]
+        #         if name and name.find("/") != -1:
+        #             if name.split("/")[-1].strip():
+        #                 titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
+        #             else:
+        #                 titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
+        #         elif name:
+        #             if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
+        #                 if not re.search(r"\[\d+", name, re.IGNORECASE):
+        #                     name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
+        #                 if not name or name.strip().isdigit():
+        #                     continue
+        #             if name == '[':
+        #                 titles.append("")
+        #             else:
+        #                 titles.append("%s%s" % (left_char, name.strip()))
+        #     return "]".join(titles)
         return title

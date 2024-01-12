@@ -93,6 +93,9 @@ _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|(
 _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話期]"
 _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*[集话話期]"
 
+_name_no_begin_re = r"^\[.+?]"
+_name_no_begin_re_zh = r"^\【.+?】"
+
 # 季组
 _seasons_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)?\s*\.\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
 _seasons_re_2 = r"(?:[Ss]0*|Season|season)([0-9]+)\s*\.\s*(?:[Ss]0*|Season|season)([0-9]+)"

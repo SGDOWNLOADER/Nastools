@@ -1,7 +1,7 @@
 import os
 import re
 
-from config import RMT_MEDIAEXT
+from config import RMT_MEDIAEXT, _name_no_begin_re, _name_no_begin_re_zh
 from app.media.meta._base import MetaBase
 from app.utils import StringUtils
 from app.utils.tokens import Tokens, get_spc_priority
@@ -30,8 +30,6 @@ class MetaVideo(MetaBase):
     _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
     _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^DV$|^3D$|^REPACK$"
     _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
-    _name_no_begin_re = r"^\[.+?]"
-    _name_no_begin_re_zh = r"^\【.+?】"
     _years_re = r"(\d{4}(?!p|P))\s*\.\s*(\d{4})(?![pP])"
     _release_date_re = r"\d{2,4}年\d+(?:月)?(?:新番|合集|)"
     _name_no_chinese_re = r".*版|.*字幕"
@@ -70,9 +68,9 @@ class MetaVideo(MetaBase):
 
         # 去掉名称中第1个[]的内容(非字幕组不做处理)
         if not ReleaseGroupsMatcher.match(title):
-            title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
+            title = re.sub(r'%s' % _name_no_begin_re, "", title, count=1)
             # 去掉名称中第1个【】的内容(非字幕组不做处理)
-            title = re.sub(r'%s' % self._name_no_begin_re_zh, "", title, count=1)
+            title = re.sub(r'%s' % _name_no_begin_re_zh, "", title, count=1)
         # 整体替换
         title = re.sub(r"[*?\\/\"<>~|]", "", title, flags=re.IGNORECASE) \
             .replace("【", "[") \
