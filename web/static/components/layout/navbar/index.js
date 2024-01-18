@@ -526,7 +526,7 @@ export class LayoutNavbar extends CustomElement {
     this.layout_userpris = navbar_list.map((item) => (item.name));
     this._active_name = "";
     this._update_appversion = "";
-    this._update_url = "https://github.com/jxxghp/nas-tools";
+    this._update_url = "https://github.com/SGDOWNLOADER/Nastools.git";
     this._is_update = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
@@ -566,12 +566,13 @@ export class LayoutNavbar extends CustomElement {
     ajax_post("version", {}, (ret) => {
       if (ret.code === 0) {
         let url = null;
+        console.log(ret)
         switch (compareVersion(ret.version, this.layout_appversion)) {
           case 1:
             url = ret.url;
             break;
           case 2:
-            url = "https://github.com/jxxghp/nas-tools/commits/master"
+            url = "https://github.com/SGDOWNLOADER/Nastools/commits/master"
             break;
         }
         if (url) {
