@@ -63,7 +63,7 @@ jobs:
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          pwd
+          dir
           ls -l
           cd Nastools
           cp ./third_party.txt ./package/
