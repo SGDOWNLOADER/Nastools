@@ -59,7 +59,7 @@ jobs:
           windows-icon-from-ico: "package/nas-tools.ico"
           
       - name: Build Executable with Nuitka-Linux
-        if: ${{ runner.os == 'Windows' }}
+        if: ${{ runner.os == 'Linux' }}
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
@@ -70,7 +70,7 @@ jobs:
           windows-icon-from-ico: "package/nas-tools.ico"
 
       - name: Build Executable with Nuitka-Macos
-        if: ${{ runner.os == 'Windows' }}
+        if: ${{ runner.os == 'Macos' }}
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
