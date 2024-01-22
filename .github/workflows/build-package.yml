@@ -55,7 +55,6 @@ jobs:
           script-name: run.py
           onefile: true
           enable-plugin: 'upx'
-          upx-binary: "package/rely/upx.exe"
           windows-icon-from-ico: "package/nas-tools.ico"
           
       - name: Build Executable with Nuitka-Linux
@@ -66,8 +65,6 @@ jobs:
           script-name: run.py
           onefile: true
           enable-plugin: 'upx'
-          upx-binary: "package/rely/upx"
-          windows-icon-from-ico: "package/nas-tools.ico"
 
       - name: Build Executable with Nuitka-Macos
         if: ${{ runner.os == 'Macos' }}
@@ -76,6 +73,7 @@ jobs:
           nuitka-version: main
           script-name: run.py
           onefile: true
+          enable-plugin: 'upx'
           macos-app-icon: "package/nas-tools.ico"
           
       - name: Upload Artifacts
