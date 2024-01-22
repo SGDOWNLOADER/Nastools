@@ -55,7 +55,6 @@ jobs:
             xcopy .\config c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\config\ /e
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
             python -m nuitka --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary='.\package\rely\upx.exe' --windows-icon-from-ico='.\package\nas-tools.ico' --output-filename='nas-tools.exe' run.py 
-            dir  D:/Nastools/package/dist
         shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
