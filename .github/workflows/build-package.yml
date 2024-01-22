@@ -43,7 +43,7 @@ jobs:
     
       - name: Install your Dependencies
         run: |
-          pip install nuitka==1.9.7
+          pip install nuitka==1.9.7 imageio==2.33.1
           pip install -r requirements.txt
 
       - name: Package with Nuitka-Windows
