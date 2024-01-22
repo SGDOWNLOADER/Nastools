@@ -68,20 +68,18 @@ jobs:
           cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/web/
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/config/
-          cp -r ./scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/scripts/
+          cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/db_scripts/
           python -m nuitka --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary='./package/rely/upx'  --output-filename='nas-tools.linux.amd64' run.py 
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
         if: ${{ runner.os == 'macos' }}
         run: |
-          pwd
-          ls -l
-          cp -r ./third_party.txt ./package/third_party.txt
+          cp -r ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
-          cp -r ./scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/scripts/
+          cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
           python -m nuitka --show-memory --show-progress --onefile --macos-app-icon='./package/nas-tools.ico' --output-filename='nas-tools.macos' run.py 
         shell: bash
           
