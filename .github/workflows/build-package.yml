@@ -62,6 +62,7 @@ jobs:
       shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
+        if: ${{ runner.os == 'Linux' }}
         run: |
           cd Nastools
           cp ./third_party.txt ./package/
@@ -73,7 +74,7 @@ jobs:
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
-        if: ${{ runner.os == 'Macos' }}
+        if: ${{ runner.os == 'macos' }}
         run: |
           cd Nastools
           cp ./third_party.txt ./package/
@@ -81,8 +82,7 @@ jobs:
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
           cp -r ./scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/scripts/
-          cd package
-          python -m nuitka --show-memory --show-progress --onefile --output-filename='nas-tools.macos' run.py 
+          python -m nuitka --show-memory --show-progress --onefile --macos-app-icon='./package/nas-tools.ico' --output-filename='nas-tools.macos' run.py 
         shell: bash
           
       - name: Upload Artifacts
