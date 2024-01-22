@@ -30,7 +30,7 @@ jobs:
       - name: Init Environment-Linux
         if: ${{ runner.os == 'Linux'}}
         run: |
-          echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/config/config.yaml") >> $env:GITHUB_ENV
+          echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG
         shell: pwsh
         
@@ -50,6 +50,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         run: |
             dir
+            ls -l
             cd Nastools
             copy .\third_party.txt .\package
             copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.11\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
@@ -63,9 +64,6 @@ jobs:
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          dir
-          ls -l
-          cd Nastools
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/web/
