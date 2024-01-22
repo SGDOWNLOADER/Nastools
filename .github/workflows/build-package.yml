@@ -75,7 +75,9 @@ jobs:
       - name: Build Executable with Nuitka-Macos
         if: ${{ runner.os == 'macos' }}
         run: |
-          cp ./third_party.txt ./package/
+          pwd
+          ls -l
+          cp -r ./third_party.txt ./package/third_party.txt
           cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
