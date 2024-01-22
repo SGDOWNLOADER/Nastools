@@ -37,7 +37,7 @@ jobs:
       - name: Init Environment-Macos
         if: ${{ runner.os == 'macos' }}
         run: |
-          echo ("NASTOOL_CONFIG=/Nastools/config/config.yaml") >> $env:GITHUB_ENV
+          echo ("NASTOOL_CONFIG=/Users/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG
         shell: pwsh
     
@@ -75,9 +75,6 @@ jobs:
       - name: Build Executable with Nuitka-Macos
         if: ${{ runner.os == 'macos' }}
         run: |
-          pwd
-          ls -l
-          cd Nastools
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
