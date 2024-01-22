@@ -49,6 +49,7 @@ jobs:
       - name: Package with Nuitka-Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
+            dir
             cd Nastools
             copy .\third_party.txt .\package
             copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.11\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
@@ -62,6 +63,8 @@ jobs:
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
+          pwd
+          ls -l
           cd Nastools
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
@@ -74,6 +77,8 @@ jobs:
       - name: Build Executable with Nuitka-Macos
         if: ${{ runner.os == 'macos' }}
         run: |
+          pwd
+          ls -l
           cd Nastools
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
