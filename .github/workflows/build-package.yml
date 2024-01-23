@@ -54,7 +54,7 @@ jobs:
             xcopy .\web c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\web\ /e
             xcopy .\config c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\config\ /e
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
-            python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary=.\package\rely\upx.exe --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python -m nuitka --standalone --show-memory --show-progress --onefile  --windows-onefile-tempdir-spec=%TEMP%\\onefile_%PID%_%TIME% --enable-plugin=upx --upx-binary=.\package\rely\upx.exe --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
@@ -65,7 +65,7 @@ jobs:
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/web/
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress --onefile --windows-onefile-tempdir-spec=%TEMP%\\onefile_%PID%_%TIME% --enable-plugin=upx --upx-binary='./package/rely/upx'  --output-filename='nas-tools.linux.amd64' run.py 
+          python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary='./package/rely/upx'  --output-filename='nas-tools.linux.amd64' run.py 
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
