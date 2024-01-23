@@ -214,6 +214,35 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-preconditioning" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">文件目录预处理</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="overflow: hidden">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">排序选择 <span class="form-help"
+                  title="用于对预处理目录下按季的目录里面的数字从小到大从01开始排序重命名" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="sort_tag">
+                  <option value="0">是</option>
+                    <option value="1">否</option>
+                </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="preconditioning_btn" class="btn btn-primary">执行</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示服务提示框
   function show_service_modal(id, name) {
@@ -239,7 +268,10 @@
         });
       });
     } else if (id === "backup") {
-      $('#modal-backup').modal('show');
+        $('#modal-backup').modal('show');
+    }
+      else if (id === "preconditioning") {
+      $('#modal-preconditioning').modal('show');
     } else {
       show_ask_modal("是否立即运行 " + name + "？", function () {
         hide_ask_modal();
@@ -311,6 +343,12 @@
       }
     });
   });
+
+  //目录预处理
+  $("#preconditioning_btn").unbind("click").click(function () {
+    preconditioning($(this));
+  });
+
 
   //名称识别测试
   function name_test(btn_obj) {
@@ -396,7 +434,21 @@
       callBack(true)
     });
   }
-
+  //目录预处理
+  function preconditioning(btn_obj) {
+    const sort_tag = $('#sort_tag');
+    const name = sort_tag.val();
+    if (!name) {
+      name_obj.addClass("is-invalid");
+      return;
+    } else {
+      name_obj.removeClass("is-invalid");
+    }
+    btn_obj.text("识别中...").attr("disabled", true);
+    media_name_test(name, "test_result", function () {
+      btn_obj.text("识别").attr("disabled", false);
+    });
+  }
   // 初始化DropZone
   backup_dropzone = new Dropzone("#back_file");
   backup_dropzone.options.acceptedFiles = ".zip";

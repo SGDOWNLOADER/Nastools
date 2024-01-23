@@ -179,6 +179,47 @@
           </div>
         </div>
       </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>预处理</strong></h3>
+            <a href="javascript:show_directory_modal('preconditioning')" class="btn btn-primary btn-icon ms-auto">
+              {{ SVG.plus() }}
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable table-hover table-striped">
+              <thead>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Config.media.preconditioning_path %}
+                {% for path in Config.media.preconditioning_path %}
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('preconditioning', '{{ path }}')" title="删除目录">
+                        {{ SVG.x() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" align="center">未配置</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
