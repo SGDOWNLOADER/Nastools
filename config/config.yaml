@@ -83,6 +83,9 @@ media:
   # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件
   # 默认策略default-category分类设置可参考"default-category.yaml"，分类参见README.MD说明
   # 如不需要启动分类，则该项配置为空
+  preconditioning_path:
+  # 【文件目录预处理路径】：适用于手动规整的目录以及文件名修改的目录
+  # 如不需要手动规整，则该项配置为空
   category: default-category
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: '150'
