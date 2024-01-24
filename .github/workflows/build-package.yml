@@ -54,7 +54,7 @@ jobs:
             xcopy .\web c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\web\ /e
             xcopy .\config c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\config\ /e
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
-            python -m nuitka --standalone --show-memory --show-progress --onefile  --windows-onefile-tempdir-spec=%TEMP%\\onefile_%PID%_%TIME% --enable-plugin=upx --upx-binary=.\package\rely\upx.exe --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python -m nuitka --show-memory --show-progress --enable-plugin=upx --upx-binary=.\package\rely\upx.exe --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
@@ -79,12 +79,27 @@ jobs:
           python -m nuitka --onefile --show-memory --show-progress --onefile --macos-app-icon='./package/nas-tools.ico' --output-filename='nas-tools.macos' run.py 
         shell: bash
           
-      - name: Upload Artifacts
+      - name: Upload Artifacts-Windows
+        if: ${{ runner.os == 'Windows' }}
         uses: actions/upload-artifact@v3
         with:
            name: ${{ runner.os }} Build
            path: |
-              build/*.exe
-              build/*.amd64
-              build/*.macos
+              build/nas-tools.exe
+
+      - name: Upload Artifacts-Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }} Build
+          path: |
+            build/nas-tools.linux.amd64
+
+      - name: Upload Artifacts-Macos
+        if: ${{ runner.os == 'macos' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }} Build
+          path: |
+            build/nas-tools.macos
             
