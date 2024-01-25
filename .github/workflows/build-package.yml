@@ -54,9 +54,7 @@ jobs:
             xcopy .\web c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\web\ /e
             xcopy .\config c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\config\ /e
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
-            python -m nuitka --enable-plugin=upx --upx-binary=./package/rely/upx.exe --output-filename=nas-tools.exe run.py
-            dir
-            ls -all
+            python -m nuitka --enable-plugin=upx --upx-binary='.\package\rely\upx.exe' --output-filename=nas-tools.exe run.py
         shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
@@ -68,8 +66,6 @@ jobs:
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/db_scripts/
           python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary='./package/rely/upx'  --output-filename='nas-tools.linux.amd64' run.py
-          pwd
-          ls -all
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
@@ -81,31 +77,15 @@ jobs:
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
           python -m nuitka --onefile --show-memory --show-progress --onefile --macos-app-icon='./package/nas-tools.ico' --output-filename='nas-tools.macos' run.py
-          pwd
-          ls -l
         shell: bash
           
-      - name: Upload Artifacts-Windows
-        if: ${{ runner.os == 'Windows' }}
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
            name: ${{ runner.os }} Build
            path: |
-              build/nas-tools.exe
+              ./nas-tools.exe
+              ./nas-tools.linux.amd64
+              ./nas-tools.macos
 
-      - name: Upload Artifacts-Linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ runner.os }} Build
-          path: |
-            build/nas-tools.linux.amd64
-
-      - name: Upload Artifacts-Macos
-        if: ${{ runner.os == 'macos' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ runner.os }} Build
-          path: |
-            build/nas-tools.macos
             
