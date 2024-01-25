@@ -57,16 +57,18 @@ jobs:
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
             python -m nuitka --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
+                
           
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
+          cp ./package/rely/upx /opt/hostedtoolcache/Python/3.10.11/x64/Scripts
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/web/
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --upx-binary='./package/rely/upx'  --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
