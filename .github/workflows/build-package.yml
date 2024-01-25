@@ -49,12 +49,13 @@ jobs:
       - name: Package with Nuitka-Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
+            copy .\package\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.11\x64\Scripts
             copy .\third_party.txt .\package
             copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.11\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
             xcopy .\web c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\web\ /e
             xcopy .\config c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\config\ /e
             xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.11\x64\lib\site-packages\db_scripts\ /e
-            python -m nuitka --enable-plugin=upx --upx-binary=.\package\rely\upx.exe --output-filename=nas-tools.exe run.py
+            python -m nuitka --enable-plugin=upx --upx-binary=c:\hostedtoolcache\windows\python\3.10.11\x64\Scripts\upx.exe --output-filename=nas-tools.exe run.py
         shell: pwsh
           
       - name: Build Executable with Nuitka-Linux
