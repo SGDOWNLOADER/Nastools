@@ -49,7 +49,6 @@ jobs:
       - name: Package with Nuitka-Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-            echo ${{Python_ROOT_DIR}}
             copy .\package\rely\upx.exe  $Python_ROOT_DIR\Scripts
             copy .\third_party.txt .\package
             copy .\package\rely\template.jinja2  $Python_ROOT_DIR\lib\site-packages\setuptools\_vendor\pyparsing\diagram
