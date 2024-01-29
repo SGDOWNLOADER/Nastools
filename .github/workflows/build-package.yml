@@ -68,7 +68,7 @@ jobs:
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/web/
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress --onefile --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress --include-data-dir=/opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/cn2an --include-data-dir=/opt/hostedtoolcache/Python/3.10.11/x64/lib/python3.10/site-packages/zhconv --onefile --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
@@ -111,14 +111,9 @@ jobs:
         pwd
         ls -all
         mkdir releases
-        mv ./windows/nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
-        mv ./linux-amd64/nas-tools.linux.amd64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_amd64_v${{ env.app_version }}
-        mv ./linux-arm64/nas-tools.linux.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_arm64_v${{ env.app_version }}
-        mv ./linux-musl-amd64/nas-tools.linux.musl.amd64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_amd64_v${{ env.app_version }}
-        mv ./linux-musl-arm64/nas-tools.linux.musl.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_arm64_v${{ env.app_version }}
-        mv ./macos/nas-tools.macos /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
-        pwd
-        ls -all
+        mv ./Windows Build/nas-tools.exe ./releases/nastool_win_v${{ env.app_version }}.exe
+        mv ./Linux Build/nas-tools.linux.amd64 ./releases/nastool_linux_amd64_v${{ env.app_version }}
+        mv ./macOS Build/nas-tools.macos ./releases/nastool_macos_v${{ env.app_version }}
     - name: Create release
       id: create_release
       uses: actions/create-release@latest
