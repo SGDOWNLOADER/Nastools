@@ -63,14 +63,14 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           env
-          echo ${{Python_ROOT_DIR}}
-          cp ./package/rely/upx ${{Python_ROOT_DIR}}/Scripts
+          echo ${{ env.Python_ROOT_DIR }}
+          cp ./package/rely/upx ${{ env.Python_ROOT_DIR }}/Scripts
           cp ./third_party.txt ./package/
-          cp ./package/rely/template.jinja2 ${Python_ROOT_DIR}/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
-          cp -r ./web/. ${{Python_ROOT_DIR}}/lib/python3.10/site-packages/web/
-          cp -r ./config/. ${{Python_ROOT_DIR}}/lib/python3.10/site-packages/config/
-          cp -r ./db_scripts/. ${{Python_ROOT_DIR}}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --onefile-tempdir-spec="/tmp/onefile"  --include-data-dir=${{Python_ROOT_DIR}}/lib/python3.10/site-packages/cn2an=/tmp/onefile/cn2an --include-data-dir=${{Python_ROOT_DIR}}/lib/python3.10/site-packages/zhconv=/tmp/onefile/zhconv --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          cp ./package/rely/template.jinja2 ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
+          cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
+          cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
+          cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --onefile-tempdir-spec="/tmp/onefile"  --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/cn2an=/tmp/onefile/cn2an --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/zhconv=/tmp/onefile/zhconv --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
