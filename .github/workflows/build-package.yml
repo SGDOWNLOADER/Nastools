@@ -49,12 +49,12 @@ jobs:
       - name: Package with Nuitka-Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-            copy .\package\rely\upx.exe  $Python_ROOT_DIR\Scripts
+            copy .\package\rely\upx.exe  ${{ env.Python_ROOT_DIR }}\Scripts
             copy .\third_party.txt .\package
-            copy .\package\rely\template.jinja2  $Python_ROOT_DIR\lib\site-packages\setuptools\_vendor\pyparsing\diagram
-            xcopy .\web  $Python_ROOT_DIR\lib\site-packages\web\ /e
-            xcopy .\config  $Python_ROOT_DIR\lib\site-packages\config\ /e
-            xcopy .\db_scripts  $Python_ROOT_DIR\lib\site-packages\db_scripts\ /e
+            copy .\package\rely\template.jinja2  ${{ env.Python_ROOT_DIR }}\lib\site-packages\setuptools\_vendor\pyparsing\diagram
+            xcopy .\web  ${{ env.Python_ROOT_DIR }}\lib\site-packages\web\ /e
+            xcopy .\config  ${{ env.Python_ROOT_DIR }}\lib\site-packages\config\ /e
+            xcopy .\db_scripts  ${{ env.Python_ROOT_DIR }}\lib\site-packages\db_scripts\ /e
             python -m nuitka --show-memory --show-progress --show-scons --follow-imports --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
                 
@@ -62,8 +62,6 @@ jobs:
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          env
-          echo ${{ env.Python_ROOT_DIR }}
           cp ./package/rely/upx ${{ env.Python_ROOT_DIR }}/Scripts
           cp ./third_party.txt ./package/
           cp ./package/rely/template.jinja2 ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
