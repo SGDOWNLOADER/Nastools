@@ -1,6 +1,11 @@
 name: Releases Builder
 on:
   workflow_dispatch:
+    inputs:
+      github_token:
+        description: 'github token'
+        required: true
+        default: ''
   push:
     tags:
       - '*'
@@ -68,7 +73,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages=site-packages  --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/cn2an=cn2an --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/zhconv=zhconv --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/sqlalchemy=sqlalchemy  --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
@@ -117,6 +122,8 @@ jobs:
     - name: Create release
       id: create_release
       uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ github.event.inputs.github_token }}
       with:
         tag_name: v${{ env.app_version }}
         release_name: v${{ env.app_version }}
@@ -126,6 +133,8 @@ jobs:
 
     - name: Upload release asset
       uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ github.event.inputs.github_token }}
       with:
         release_id: ${{ steps.create_release.outputs.id }}
         assets_path: |
