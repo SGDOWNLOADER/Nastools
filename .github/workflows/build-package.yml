@@ -68,7 +68,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/cn2an=cn2an --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/zhconv=zhconv --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages=site-packages  --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
@@ -111,9 +111,9 @@ jobs:
         pwd
         ls -all
         mkdir releases
-        mv ./Windows Build/nas-tools.exe ./releases/nastool_win_v${{ env.app_version }}.exe
-        mv ./Linux Build/nas-tools.linux.amd64 ./releases/nastool_linux_amd64_v${{ env.app_version }}
-        mv ./macOS Build/nas-tools.macos ./releases/nastool_macos_v${{ env.app_version }}
+        mv ./Windows\ Build/nas-tools.exe ./releases/nastool_win_v${{ env.app_version }}.exe
+        mv ./Linux\ Build/nas-tools.linux.amd64 ./releases/nastool_linux_amd64_v${{ env.app_version }}
+        mv ./macOS\ Build/nas-tools.macos ./releases/nastool_macos_v${{ env.app_version }}
     - name: Create release
       id: create_release
       uses: actions/create-release@latest
