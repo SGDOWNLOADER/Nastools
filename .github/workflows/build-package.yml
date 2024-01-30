@@ -2,8 +2,8 @@ name: Releases Builder
 on:
   workflow_dispatch:
   push:
-    tags:
-      - '*'
+    branches:
+      - dev
 
 jobs:         
   build:
@@ -43,7 +43,10 @@ jobs:
     
       - name: Install your Dependencies
         run: |
-          pip install nuitka==1.9.7 imageio==2.33.1
+          python -m pip install --upgrade pip
+          pip install nuitka==1.9.7 imageio==2.33.1 wheel
+          git clone --depth=1 -b master https://github.com/SGDOWNLOADER/Nastools --recurse-submodule
+          cd Nastools
           pip install -r requirements.txt
 
       - name: Package with Nuitka-Windows
@@ -68,8 +71,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          cp -r ./app/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/app/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/cn2an=cn2an --include-data-dir=${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/zhconv=zhconv --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-package-data=cn2an --include-package-data=zhconv --include-package-data=sqlalchemy --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
