@@ -71,7 +71,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-package-data=cn2an --include-package-data=zhconv --include-package-data=sqlalchemy --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-package=cn2an,zhconv,sqlalchemy --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
