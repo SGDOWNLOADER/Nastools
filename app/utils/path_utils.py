@@ -64,6 +64,20 @@ class PathUtils:
         return ret_list
 
     @staticmethod
+    def get_dir_level1_dirs(in_path):
+        """
+        查询目录下的目录（只查询一级）
+        """
+        ret_list = []
+        if not os.path.exists(in_path):
+            return []
+        for file in os.listdir(in_path):
+            path = os.path.join(in_path, file)
+            if os.path.isdir(path):
+                ret_list.append(path)
+        return ret_list
+
+    @staticmethod
     def get_dir_level1_medias(in_path, exts=""):
         """
         根据后缀，返回目录下所有的文件及文件夹列表（只查询一级）

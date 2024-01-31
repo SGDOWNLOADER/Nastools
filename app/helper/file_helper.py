@@ -3,6 +3,7 @@ import re
 import pandas as pd
 from app.helper import DbHelper
 from app.utils import PathUtils, Tokens
+import os
 
 
 class FileHelper:
@@ -18,9 +19,9 @@ class FileHelper:
     offset_words_info = []
 
 
-    def __init__(self):
+    def __init__(self, dirname):
         self.init_config()
-
+        self.dir_name = dirname
 
 
     def init_config(self):
@@ -63,6 +64,46 @@ class FileHelper:
                 esp_num = re.findall(r'\d+', title)[0]
         return esp_num
 
+    def get_season_num(self):
+        pass
+
+    def dir_df_dic(self):
+        level1_list = PathUtils.get_dir_level1_medias(self.dir_name)
+        df_list_three = []
+        df_list_two = []
+        for level1_path in level1_list:
+            # 判断预处理1级目录是否存在目录
+            if os.path.isdir(level1_path):
+                file_list = PathUtils.get_dir_files(level1_path, RMT_MEDIAEXT)
+                # 1级目录进行识别（存在二级目录）
+                if len(PathUtils.get_dir_level1_dirs(level1_path)) != 0:
+                    for dir_name in PathUtils.get_dir_level1_dirs(level1_path):
+                        dir_dic = {dir_name: []}
+                        for file_path in file_list:
+                            dir_path, file_name = os.path.split(file_path)
+                            if dir_name == dir_path:
+                                dir_dic[dir_path].append(file_name)
+                        df_list_three.append(dir_dic)
+                # 1级目录进行识别（不存在二级目录）
+                else:
+                    # 1级目录进行识别（1级目录下存在文件）
+                    if PathUtils.get_dir_files(level1_path, RMT_MEDIAEXT):
+                        file_list = PathUtils.get_dir_files(level1_path, RMT_MEDIAEXT)
+                        for file_path in file_list:
+                            dir_path, file_name = os.path.split(file_path)
+                            # 识别文件中是否存在季信息
+                            self.recognize_season()
+                            # 根据季信息进行归类重新排序处理
+
+                            print(dir_path + f' 目录下面存在文件{file_name}')
+                    # 1级目录进行识别（1级目录下不存在文件）
+                    else:
+                        print(level1_path + ' 目录下面文件缺失')
+            else:
+                # 源目录进行识别
+                print(level1_path)
+        return df_list_three
+
     @staticmethod
     def create_info_df(sortflag, esp_num_ls, file_list):
         """
@@ -78,10 +119,5 @@ class FileHelper:
         df_sorted['sort_num'] = sort_lst
         return df_sorted
 
-
-    def process_dir(self):
+    def run(self):
         pass
-
-
-
-
