@@ -45,7 +45,7 @@ jobs:
     
       - name: Install your Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip
           pip install nuitka==1.9.7 imageio==2.33.1 wheel
           git clone --depth=1 -b master https://github.com/SGDOWNLOADER/Nastools --recurse-submodule
           cd Nastools
@@ -60,7 +60,7 @@ jobs:
             xcopy .\web  ${{ env.Python_ROOT_DIR }}\lib\site-packages\web\ /e
             xcopy .\config  ${{ env.Python_ROOT_DIR }}\lib\site-packages\config\ /e
             xcopy .\db_scripts  ${{ env.Python_ROOT_DIR }}\lib\site-packages\db_scripts\ /e
-            python -m nuitka --show-memory --show-progress --show-scons --follow-imports --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python3 -m nuitka --show-memory --show-progress --show-scons --follow-imports --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
                 
           
