@@ -1,4 +1,5 @@
-from config import RMT_MEDIAEXT, RMT_SUBEXT, _subtitle_season_re, _subtitle_season_all_re, _subtitle_episode_re, _subtitle_episode_all_re
+from config import RMT_MEDIAEXT, RMT_SUBEXT, _subtitle_season_re, _subtitle_season_all_re, _subtitle_episode_re, \
+    _subtitle_episode_all_re
 import re
 import pandas as pd
 from app.helper import DbHelper
@@ -18,30 +19,19 @@ class FileHelper:
     sortflag = False
     offset_words_info = []
 
-
     def __init__(self, dirname):
         self.init_config()
         self.dir_name = dirname
-
 
     def init_config(self):
         self.dbhelper = DbHelper()
         self.offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
 
-
-    def reset_filename(self, file_list):
-        if self.sortflag:
-
-            file_list = sorted(file_list, key=lambda item: (int(re.sub('\D', '', item)), item))
-
-
     def get_esp_num(self, title):
         """
-        获取文件名的集数
-        :param title: 标题、种子名、文件名
-        :param subtitle: 副标题、描述
-        :param mtype: 指定识别类型，为空则自动识别类型
-        :return: MetaAnime、MetaVideo
+        获取文件名中的集数
+        :param title: 文件名
+        :return: esp_num
         """
         esp_num = None
         episode_str = re.search(r'%s' % _subtitle_episode_re, title, re.IGNORECASE)
@@ -64,10 +54,19 @@ class FileHelper:
                 esp_num = re.findall(r'\d+', title)[0]
         return esp_num
 
-    def get_season_num(self):
+    def get_season_num(self, title):
+        """
+        获取文件名中的季数
+        :param title: 文件名
+        :return: season_num
+        """
         pass
 
     def dir_df_dic(self):
+        """
+        将预处理的目录下的文件信息用DataFram存储
+        :return: df_list_three
+        """
         level1_list = PathUtils.get_dir_level1_medias(self.dir_name)
         df_list_three = []
         df_list_two = []
@@ -92,7 +91,7 @@ class FileHelper:
                         for file_path in file_list:
                             dir_path, file_name = os.path.split(file_path)
                             # 识别文件中是否存在季信息
-                            self.recognize_season()
+                            self.get_season_num()
                             # 根据季信息进行归类重新排序处理
 
                             print(dir_path + f' 目录下面存在文件{file_name}')
@@ -105,19 +104,42 @@ class FileHelper:
         return df_list_three
 
     @staticmethod
-    def create_info_df(sortflag, esp_num_ls, file_list):
+    def create_info_df(df_dic, esp_num_ls, season_num_ls):
         """
         创建文件名的相关信息的DataFram
-        :param title: 标题、种子名、文件名
-        :param subtitle: 副标题、描述
-        :param mtype: 指定识别类型，为空则自动识别类型
-        :return: MetaAnime、MetaVideo
+        :param df_dic: DataFram的字典
+        :param esp_num_ls: 识别出来的集数列表
+        :param season_num_ls: 识别出来的季数列表
+        :return:
         """
-        df = pd.DataFrame({'esp_num': esp_num_ls}, index=file_list)
+        df = pd.DataFrame({list(df_dic.keys())[0]: list(df_dic.values())[0]})
+        df['esp_num'] = esp_num_ls
         df_sorted = df.sort_values(by=['esp_num'])
-        sort_lst = [i for i in range(1, df_sorted.shape[0] + 1)] if sortflag else esp_num_ls
-        df_sorted['sort_num'] = sort_lst
+        df_sorted['sort_esp_num'] = [i for i in range(1, df_sorted.shape[0] + 1)]
+        df_sorted['season_num'] = season_num_ls
+        df_sorted['file_suffix'] = [os.path.splitext(df_sorted.iloc[i][0])[-1] for i in range(0, df_sorted.shape[0])]
+
+        original_file_path = [os.path.join(df_sorted.columns[0], df_sorted.iloc[i][0]) for i in
+                              range(0, df_sorted.shape[0])]
+        df_sorted['original_file_path'] = original_file_path
+        new_sort_file_path = [os.path.join(df_sorted.columns[0], df_sorted.iloc[i][3] + 'E' + (
+            '0' + str(df_sorted.iloc[i][2]) if len(str(df_sorted.iloc[i][2])) == 1 else str(df_sorted.iloc[i][2])) +
+                                           df_sorted.iloc[i][4]) for i in range(0, df_sorted.shape[0])]
+        df_sorted['new_sort_file_path'] = new_sort_file_path
+        new_file_path = [os.path.join(df_sorted.columns[0], df_sorted.iloc[i][3] + 'E' + (
+            '0' + str(df_sorted.iloc[i][1]) if len(str(df_sorted.iloc[i][1])) == 1 else str(df_sorted.iloc[i][1])) +
+                                      df_sorted.iloc[i][4]) for i in range(0, df_sorted.shape[0])]
+        df_sorted['new_file_path'] = new_file_path
         return df_sorted
+
+    @staticmethod
+    def rename_filename(df_sorted):
+        """
+        批量修改文件名
+        """
+        for i in range(0, len(df_sorted)):
+            os.rename(df_sorted['original_file_path'][i], df_sorted['new_sort_file_path'][i])
+            print(df_sorted['original_file_path'][i], df_sorted['new_sort_file_path'][i])
 
     def run(self):
         pass
