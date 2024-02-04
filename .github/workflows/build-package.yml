@@ -26,14 +26,18 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         run: |
           echo ("NASTOOL_CONFIG=D:/a/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
-          echo $env:NASTOOL_CONFIG
+          echo ("LANG=zh_CN.UTF-8") >> $env:GITHUB_ENV
+          echo $env:NASTOOL_CONFIG:LANG
         shell: pwsh
 
       - name: Init Environment-Linux
         if: ${{ runner.os == 'Linux'}}
         run: |
           echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
-          echo $env:NASTOOL_CONFIG
+          echo ("LANG=zh_CN.UTF-8") >> $env:GITHUB_ENV
+          echo $env:NASTOOL_CONFIG:LANG
+          apt-get install locales -y
+          localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8
         shell: pwsh
         
       - name: Init Environment-Macos
