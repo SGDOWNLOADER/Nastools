@@ -6,7 +6,6 @@ on:
       - dev
     paths:
       - version.py
-
 jobs:
   build:
     runs-on: ubuntu-latest

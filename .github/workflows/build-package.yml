@@ -36,8 +36,8 @@ jobs:
           echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
           echo ("LANG=zh_CN.UTF-8") >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG:LANG
-          apt-get install locales -y
-          localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8
+          sudo apt-get install locales -y
+          sudo localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8
         shell: pwsh
         
       - name: Init Environment-Macos
