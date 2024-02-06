@@ -34,9 +34,8 @@ jobs:
       - name: Init Environment-Linux
         if: ${{ runner.os == 'Linux'}}
         run: |
-          echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
-          echo ("LANG=zh_CN.UTF-8") >> $env:GITHUB_ENV
-          echo $env:NASTOOL_CONFIG:LANG
+          echo "NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml" >> $GITHUB_ENV
+          echo "LANG=zh_CN.UTF-8" >> $GITHUB_ENV
           sudo apt-get install locales -y
           sudo localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8
         shell: pwsh
@@ -78,7 +77,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-dir=./config=config --include-data-dir=./web=web --include-data-dir=./db_scripts=db_scripts --include-data-files=./package/third_party.txt=third_party.txt --include-data-dir=./third_party/feapder=feapder --enable-plugin=upx --output-filename='nas-tools.linux.amd64' run.py
+          python -m nuitka --standalone --show-memory --show-progress  --onefile --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-dir=./config=config --include-data-dir=./web=web --include-data-dir=./db_scripts=db_scripts --include-data-files=./package/third_party.txt=third_party.txt --include-data-dir=./third_party/feapder/feapder=feapder --enable-plugin=upx --linux-icon='./package/nas-tools.ico' --output-filename='nas-tools.linux.amd64'  run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
