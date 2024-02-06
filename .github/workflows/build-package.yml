@@ -72,7 +72,7 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --show-memory --show-progress --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --nofollow-import-to=app.sites.siteuserinfo --nofollow-import-to=app.mediaserver.client --nofollow-import-to=app.message.client --nofollow-import-to=app.indexer.client --nofollow-import-to=app.downloader.client --nofollow-import-to=app.plugins.modules --nofollow-import-to=app.plugins.modules._autosignin --enable-plugin=upx --linux-icon='./package/nas-tools.ico' --output-filename='nas-tools.linux.amd64'  run.py
+          python -m nuitka --standalone --show-memory --show-progress --onefile --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --nofollow-import-to=app.sites.siteuserinfo --nofollow-import-to=app.mediaserver.client --nofollow-import-to=app.message.client --nofollow-import-to=app.indexer.client --nofollow-import-to=app.downloader.client --nofollow-import-to=app.plugins.modules --nofollow-import-to=app.plugins.modules._autosignin --enable-plugin=upx --linux-icon='./package/nas-tools.ico' --output-filename='nas-tools.linux.amd64'  run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
