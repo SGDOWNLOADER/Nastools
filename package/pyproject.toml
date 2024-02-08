@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "nuitka", "toml"]
+build-backend = "nuitka.distutils.Build"
+
+[tool.setuptools.package-data]
+some_package = ['cn2an', 'zhconv']
+
+[tool.nuitka]
+show-scons = true
+enable-plugin = "upx"
+nofollow-import-to = ["app.sites.siteuserinfo", "app.mediaserver.client", 'app.message.client', 'app.indexer.client',
+'app.downloader.client', 'app.plugins.modules', 'app.plugins.modules._autosignin']
