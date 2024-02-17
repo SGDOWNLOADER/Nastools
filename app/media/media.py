@@ -42,7 +42,6 @@ class Media:
 
     def init_config(self):
         app = Config().get_config('app')
-        media = Config().get_config('media')
         laboratory = Config().get_config('laboratory')
         # 辅助查询
         self._search_keyword = laboratory.get("search_keyword")
@@ -834,6 +833,7 @@ class Media:
                         # 补全缺失的信息
                         meta_info.begin_season = meta_info.begin_season if meta_info.begin_season else 1
                         meta_info.type = file_info.type
+                        meta_info.year = file_info.year
                         meta_info.begin_episode = file_info.begin_episode
                         meta_info.end_episode = file_info.end_episode
                         meta_info.total_episodes = file_info.total_episodes

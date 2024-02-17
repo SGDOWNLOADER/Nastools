@@ -59,7 +59,7 @@ pycryptodome==3.15.0
 Pygments==2.13.0
 PyJWT==2.5.0
 pymongo==4.2.0
-PyMySQL==1.0.2
+PyMySQL==1.1.0
 pyperclip==1.8.2
 pypushdeer==0.0.3
 pyquery==1.4.3
@@ -82,7 +82,7 @@ slack-sdk==3.19.5
 sniffio==1.2.0
 sortedcontainers==2.4.0
 soupsieve==2.3.2.post1
-SQLAlchemy==1.4.42
+SQLAlchemy==2.0.19
 stack-data==0.5.1
 terminal-layout==2.1.2
 tqdm==4.64.0
