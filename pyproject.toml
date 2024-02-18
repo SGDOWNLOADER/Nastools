@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=42", "wheel", "nuitka", "toml"]
-build-backend = "nuitka.distutils.Build"
+build-backend = "run.py"
 
 [tool.setuptools.package-data]
 some_package = ['cn2an', 'zhconv']

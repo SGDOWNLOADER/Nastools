@@ -56,24 +56,19 @@ jobs:
             xcopy .\web  ${{ env.Python_ROOT_DIR }}\lib\site-packages\web\ /e
             xcopy .\config  ${{ env.Python_ROOT_DIR }}\lib\site-packages\config\ /e
             xcopy .\db_scripts  ${{ env.Python_ROOT_DIR }}\lib\site-packages\db_scripts\ /e
-            python -m nuitka --show-memory --show-progress --show-scons --follow-imports --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python -m nuitka --show-memory --show-progress  --nofollow-imports --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-files=.\third_party.txt=third_party.txt --follow-import-to=web,config,db_scripts,third_party.txt,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          echo ("NASTOOL_CONFIG=/home/runner/work/Nastools/Nastools/config/config.yaml") >> $env:GITHUB_ENV
-          echo $env:NASTOOL_CONFIG
-          echo ("LANG=zh_CN.UTF-8") >> $env:GITHUB_ENV
-          echo $env:LANG
-          sudo apt-get install locales -y
-          sudo localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8
           cp ./package/rely/upx ${{ env.Python_ROOT_DIR }}/Scripts
           cp ./package/rely/template.jinja2 ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --show-memory --show-progress  --standalone --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-files=./third_party.txt=third_party.txt --nofollow-import-to=app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --linux-icon=./package/nas-tools.ico --output-filename='nas-tools.linux.amd64'  run.py
+          cp -r ./app/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/app/
+          python -m nuitka --show-memory --show-progress  --nofollow-imports --follow-import-to=web,config,db_scripts,app,third_party.txt --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-files=./third_party.txt=third_party.txt --enable-plugin=upx --linux-icon=./package/nas-tools.ico --output-filename=nas-tools.linux.amd64  run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
