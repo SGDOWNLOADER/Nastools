@@ -64,7 +64,7 @@ class MetaHelper(object):
                 if not expire or int(time.time()) < expire:
                     info[CACHE_EXPIRE_TIMESTAMP_STR] = int(time.time()) + EXPIRE_TIMESTAMP
                     self.update_meta_data({key: info})
-                elif expire and self._tmdb_cache_expire:
+                elif expire <= int(time.time()) and self._tmdb_cache_expire:
                     self.delete_meta_data(key)
             return info or {}
 

@@ -892,6 +892,7 @@ class Media:
                                                                  chinese=chinese)
                         else:
                             # 缓存为未识别
+                            # 存在缓存过期删除后数据失效的问题
                             file_media_info = None
                     # 赋值TMDB信息
                     meta_info.set_tmdb_info(file_media_info)
