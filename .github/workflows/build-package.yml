@@ -57,7 +57,7 @@ jobs:
             xcopy .\config  ${{ env.Python_ROOT_DIR }}\lib\site-packages\config\ /e
             xcopy .\db_scripts  ${{ env.Python_ROOT_DIR }}\lib\site-packages\db_scripts\ /e
             xcopy .\app  ${{ env.Python_ROOT_DIR }}\lib\site-packages\app\ /e
-            python -m nuitka --show-memory --show-progress --follow-imports --include-package=sqlalchemy --include-package-data=cn2an --include-data-files=./third_party.txt=third_party.txt --include-package-data=zhconv --follow-import-to=web,config,db_scripts,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python -m nuitka --show-memory --show-progress --onefile --include-package=sqlalchemy --include-package-data=cn2an --include-data-files=./third_party.txt=third_party.txt --include-package-data=zhconv --follow-import-to=web,config,db_scripts,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Linux
@@ -79,7 +79,7 @@ jobs:
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --standalone --show-memory --show-progress --onefile --macos-create-app-bundle --macos-app-icon='./package/nas-tools.ico' --output-filename='nas-tools.macos' run.py
+          python -m nuitka --standalone --show-memory --show-progress --onefile --macos-create-app-bundle --include-package=sqlalchemy --include-package-data=cn2an --include-data-files=./third_party.txt=third_party.txt --include-package-data=zhconv --follow-import-to=web,config,db_scripts,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --macos-app-icon=./package/nas-tools.ico --output-filename=nas-tools.macos run.py
         shell: bash
           
       - name: Upload Artifacts
