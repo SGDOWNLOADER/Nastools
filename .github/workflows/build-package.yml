@@ -68,7 +68,8 @@ jobs:
           cp -r ./web/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/web/
           cp -r ./config/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/config/
           cp -r ./db_scripts/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/db_scripts/
-          python -m nuitka --show-memory --show-progress  --onefile --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --include-data-files=./third_party.txt=third_party.txt --follow-import-to=web,config,db_scripts,app,third_party.txt --enable-plugin=upx --linux-icon=./package/nas-tools.ico --output-filename=nas-tools.linux.amd64  run.py
+          cp -r ./third_party/feapder/feapder/. ${{ env.Python_ROOT_DIR }}/lib/python3.10/site-packages/feapder/
+          python -m nuitka --show-memory --show-progress  --onefile --include-package=sqlalchemy --include-package-data=cn2an,zhconv,feapder --include-data-files=./third_party.txt=third_party.txt --include-data-files=./third_party.txt=third_party.txt --follow-import-to=web,config,db_scripts,app,third_party.txt --enable-plugin=upx --linux-icon=./package/nas-tools.ico --output-filename=nas-tools.linux.amd64  run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Macos
