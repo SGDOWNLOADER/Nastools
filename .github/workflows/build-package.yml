@@ -57,7 +57,7 @@ jobs:
             xcopy .\config  ${{ env.Python_ROOT_DIR }}\lib\site-packages\config\ /e
             xcopy .\db_scripts  ${{ env.Python_ROOT_DIR }}\lib\site-packages\db_scripts\ /e
             xcopy .\app  ${{ env.Python_ROOT_DIR }}\lib\site-packages\app\ /e
-            python -m nuitka --show-memory --show-progress --follow-imports --python-flag=no_site --include-package=sqlalchemy --include-package-data=cn2an --include-package-data=zhconv --follow-import-to=web,config,db_scripts,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
+            python -m nuitka --show-memory --show-progress --follow-imports --python-flag=no_site --include-package=sqlalchemy --follow-import-to=web,config,db_scripts,app.sites.siteuserinfo,app.mediaserver.client,app.message.client,app.indexer.client,app.downloader.client,app.plugins.modules,app.plugins.modules._autosignin --enable-plugin=upx --windows-icon-from-ico=.\package\nas-tools.ico --output-filename=nas-tools.exe run.py
         shell: pwsh
 
       - name: Build Executable with Nuitka-Linux
