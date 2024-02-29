@@ -23,7 +23,7 @@ from app.brushtask import BrushTask
 from app.conf import ModuleConf, SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import SecurityHelper, MetaHelper, ChromeHelper, ThreadHelper
+from app.helper import SecurityHelper, MetaHelper, ChromeHelper, ThreadHelper, FileHelper
 from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import WebhookEvent
@@ -126,6 +126,7 @@ def login():
         RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
+        FilesCore = FileHelper(Config().get_config('media').get('preconditioning_path'))
         Indexers = Indexer().get_indexers()
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
         CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
@@ -140,6 +141,7 @@ def login():
                                PixDict=PixDict,
                                SyncMod=SyncMod,
                                SiteFavicons=SiteFavicons,
+                               FilesCore=FilesCore,
                                RmtModeDict=RmtModeDict,
                                Indexers=Indexers,
                                SearchSource=SearchSource,
