@@ -97,14 +97,14 @@ _name_no_begin_re = r"^\[.+?]"
 _name_no_begin_re_zh = r"^\【.+?】"
 
 # 季组
-_seasons_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)?\s*\.\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
-_seasons_re_2 = r"(?:[Ss]0*|Season|season)([0-9]+)\s*\.\s*(?:[Ss]0*|Season|season)([0-9]+)"
+_seasons_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)?\s*\W*\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
+_seasons_re_2 = r"(?:[Ss]0*|Season|season)([0-9]+)\s*\W*\s*(?:[Ss]0*|Season|season)([0-9]+)"
 # 季
 _season_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(季)"
 _season_re_2 = r"(?<![a-zA-Z0-9_])(?i)[sS](eason)?\s*0*\d+"
 # 集组
-_episodes_re_1 = r"(?:第)?\s*(?<![sS])(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)?\s*\.\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)"
-_episodes_re_2 = r"(?:[Ee]0*|episode|ep)([0-9]+)\s*\.\s*(?:[Ee]0*|episode|ep)([0-9]+)"
+_episodes_re_1 = r"(?:第)?\s*(?<![sS])(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)?\s*\W*\s*(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)"
+_episodes_re_2 = r"(?:[Ee]0*|episode|ep)([0-9]+)\s*\W*\s*(?:[Ee]0*|episode|ep)([0-9]+)"
 # 集
 _episode_re_1 = r"(?:第)?\s*(?:\d+|[一二三四五六七八九十]+)\s*(?:集|话|話)"
 _episode_re_2 = r"(?<![a-zA-Z0-9_])(?i)(?:e|ep|episode)\s*0*\d+"
