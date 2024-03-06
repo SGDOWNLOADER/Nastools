@@ -970,75 +970,20 @@
     $("#system-fail-modal").modal("show");
   }
   // 预处理提交
-  // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
-  // media_type: 电影，电视剧，动漫
-  function dir_auto_preconditioning(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
-    // 初始化类型
-    if (!filehelper) {
-      filehelper = '{{ FilesCore }}';
-    }
-    let source = CURRENT_PAGE_URI;
-    if (source === 'mediafile') {
-      source = `mediafile?dir=${inpath}`;
-    }
-    $("#rename_source").val(source);
-    $("#rename_manual_type").val(manual_type);
-    if (manual_type === 3) {
-      $('#rename_header').text("自定义识别");
-      $('#rename_path_div').hide();
-      $('#rename_inpath_div').show();
-      $('#rename_outpath_div').show();
-      $("#rename_inpath").val(inpath);
-      $("#rename_outpath").val('');
-      $("#rename_syncmod_customize").val(syncmod);
-      $("#unknown_id").val("");
-      $("#transferlog_id").val("");
-    } else {
-      $('#rename_header').text("手动识别");
-      $('#rename_path_div').show();
-      $('#rename_inpath_div').hide();
-      $('#rename_outpath_div').hide();
-      $("#rename_path").val(inpath);
-      $("#rename_syncmod_manual").val(syncmod);
-      $("#unknown_id").val(unknown_id);
-      $("#transferlog_id").val(transferlog_id);
-    }
+  // sort_name: 0-重新排序，1-正常顺序
 
-    // 初始化媒体类型
-    if (media_type === "电视剧") {
-      $("#rename_type_tv").prop("checked", true);
-      $("#rename_type_mov").removeProp("checked");
-      $("#rename_type_anime").removeProp("checked");
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-    } else if (media_type === "动漫") {
-      $("#rename_type_anime").prop("checked", true);
-      $("#rename_type_tv").removeProp("checked");
-      $("#rename_type_mov").removeProp("checked");
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-    } else {
-      $("#rename_type_mov").prop("checked", true);
-      $("#rename_type_tv").removeProp("checked");
-      $("#rename_type_anime").removeProp("checked");
-      $("#rename_season_div").hide();
-      $("#rename_episode_div").hide();
-      $("#rename_season").val("");
+  function dir_auto_preconditioning(name, func) {
+    if (!name) {
+      return;
     }
-
-    // 清空输入框
-    $("#rename_min_filesize").val("");
-    $("#rename_episode").val("");
-    $("#rename_episode_details").val("");
-    $("#rename_episode_offset").val("");
-    $("#rename_season").val("");
-    $("#rename_tmdb").val("");
-
-    // 显示窗口
-    $("#modal-media-identification").modal("show");
-
+    ajax_post("dir_auto_preconditioning", {"sort_name": name}, function (ret) {
+      if (func) {
+        func();
+      }
+    });
   }
 
+  // 预处理目录的处理结果呈现
 
 </script>
 

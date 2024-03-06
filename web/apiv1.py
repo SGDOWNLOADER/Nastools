@@ -975,6 +975,19 @@ class ConfigRestore(ClientResource):
         return WebAction().api_action(cmd='restory_backup', data=self.parser.parse_args())
 
 
+@config.route('/neaten')
+class ConfigRestore(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sort_name', type=int, help='是否重新排序', location='form', required=True)
+
+    @config.doc(parser=parser)
+    def post(self):
+        """
+        目录预处理
+        """
+        return WebAction().api_action(cmd='dir_auto_preconditioning', data=self.parser.parse_args())
+
+
 @config.route('/info')
 class ConfigInfo(ClientResource):
     @staticmethod

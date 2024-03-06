@@ -1,4 +1,4 @@
-FROM miraclemie/python:3.10.11-alpine
+FROM miraclemie/python:3.10.11-alpine-bso
 RUN apk add --no-cache --virtual .build-deps \
         libffi-dev \
         gcc \

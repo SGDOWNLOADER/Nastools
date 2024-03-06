@@ -228,7 +228,7 @@
             <div class="mb-3">
               <label class="form-label">排序选择 <span class="form-help"
                   title="用于对预处理目录下按季的目录里面的数字从小到大从01开始排序重命名" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="sort_tag">
+                <select class="form-select" id="sort_name">
                   <option value="0">是</option>
                     <option value="1">否</option>
                 </select>
@@ -436,18 +436,19 @@
   }
   //目录预处理
   function preconditioning(btn_obj) {
-    const sort_tag = $('#sort_tag');
-    const name = sort_tag.val();
+    const name_obj = $('#sort_name');
+    const name = name_obj.val();
     if (!name) {
       name_obj.addClass("is-invalid");
       return;
     } else {
       name_obj.removeClass("is-invalid");
     }
-    btn_obj.text("识别中...").attr("disabled", true);
-    media_name_test(name, "test_result", function () {
-      btn_obj.text("识别").attr("disabled", false);
+    btn_obj.text("执行中...").attr("disabled", true);
+    dir_auto_preconditioning(name, function () {
+      btn_obj.text("执行").attr("disabled", false);
     });
+
   }
   // 初始化DropZone
   backup_dropzone = new Dropzone("#back_file");

@@ -22,7 +22,7 @@ from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
-    MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper
+    MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper, FileHelper
 from app.indexer import Indexer
 from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
@@ -123,6 +123,7 @@ class WebAction:
             "check_site_attr": self.__check_site_attr,
             "refresh_process": self.__refresh_process,
             "restory_backup": self.__restory_backup,
+            "dir_auto_preconditioning": self.__dir_auto_preconditioning,
             "start_mediasync": self.__start_mediasync,
             "mediasync_state": self.__mediasync_state,
             "get_tvseason_list": self.__get_tvseason_list,
@@ -2628,6 +2629,24 @@ class WebAction:
                     os.remove(file_path)
 
         return {"code": 1, "msg": "文件不存在"}
+
+
+    @staticmethod
+    def __dir_auto_preconditioning(data):
+        """
+        目录预处理
+        """
+        sort_name = data.get("sort_name")
+        preconditioning_paths = Config().get_config('media').get('preconditioning_path')
+        sort_flag = True if sort_name == "0" else False
+        try:
+            for preconditioning_path in preconditioning_paths:
+                filehelper = FileHelper(preconditioning_path)
+                filehelper.run(sort_flag)
+                return {"code": 0, "msg": ""}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __start_mediasync(data):
