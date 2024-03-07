@@ -68,10 +68,11 @@ class FileHelper:
         """
         split_str = re.findall(r'\W', pat_str)[0] if re.findall(r'\W', pat_str) else flag
         num_lst = list(filter(lambda x: x is not None and x != '', pat_str.split(split_str.upper())))
-        num_lst = [re.findall(_numbers_re, i, flags=re.IGNORECASE)[0] for i in num_lst]
+        num_lst = [re.findall(_numbers_re, num, flags=re.IGNORECASE)[0]
+                   if re.findall(_numbers_re, num, flags=re.IGNORECASE) else None for num in num_lst]
         if len(num_lst) == 2:
             return int(cn2an.cn2an(num_lst[0].strip(), mode='smart')), int(
-                cn2an.cn2an(num_lst[1].strip(), mode='smart'))
+                    cn2an.cn2an(num_lst[1].strip(), mode='smart')) if num_lst[1] else None
         else:
             return int(cn2an.cn2an(num_lst[0].strip(), mode='smart')), None
 
@@ -427,8 +428,8 @@ if __name__ == '__main__':
     dir = r'E:\test\tmp'
     sortflag = False
     file_helper = FileHelper(dir)
-    file_helper.handle_medias_df_dic(rmt=RMT_MEDIAEXT)
-    for df_dic in file_helper.df_list_level2:
+    df_list_level2, df_list_level1 = file_helper.handle_medias_df_dic(rmt=RMT_MEDIAEXT)
+    for df_dic in df_list_level2:
         begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
             file_helper.get_series_ls(df_dic)
         df = file_helper.create_info_df(df_dic, begin_season_ls, end_season_ls, total_season_ls,
