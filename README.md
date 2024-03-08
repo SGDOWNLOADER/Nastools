@@ -42,6 +42,22 @@
    - v2.9.3：新增国内比较多的字幕组和其他的bt站的bt下载爬取适配，增加索引源
    - v2.9.4：新增下载工具-百度云的转存适配，配合群晖的cloud sync的转存目录进行下载到对应的目录
 
+## 新增功能使用
+
+### v2.9.2
+
+- 新增集偏移（增强识别集数的正确率）
+
+![image-20240308165421489](https://raw.githubusercontent.com/miraclemie/pifgo/main/202403081658646.png)
+
+- 新增预处理目录
+
+![image-20240308170130328](https://raw.githubusercontent.com/miraclemie/pifgo/main/202403081701671.png)
+
+- 手动点击文件目录预处理（根据文件是否从头排序）
+
+![image-20240308170304710](https://raw.githubusercontent.com/miraclemie/pifgo/main/202403081703533.png)
+
 
 
 ## 修改思路

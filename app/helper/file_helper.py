@@ -4,6 +4,7 @@ import regex as re
 import pandas as pd
 from app.helper import DbHelper
 from app.utils import PathUtils, Tokens
+from app.media.meta.metavideo import get_file_md5
 import os
 import cn2an
 import log
@@ -158,6 +159,17 @@ class FileHelper:
             total_episode = (end_episode - begin_episode) + 1
         return begin_episode, end_episode, total_episode
 
+    @staticmethod
+    def preconditioning_title(title):
+        """
+        预处理文件名
+        :param title: 文件名
+        :return: title:
+        """
+        if get_file_md5(title):
+            title = title.replace(get_file_md5(title), '')
+        return title
+
     def get_episode_num(self, title):
         """
         获取文件名中的集数
@@ -166,6 +178,7 @@ class FileHelper:
         end_episode:
         total_episode:
         """
+        title = self.preconditioning_title(title)
         episode_str = re.search(f"({_episode_re_1}|{_episode_re_2})", title, flags=re.IGNORECASE)
         episodes_str = re.search(f"({_episodes_re_1}|{_episodes_re_2})", title, flags=re.IGNORECASE)
         try:
