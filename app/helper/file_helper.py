@@ -168,30 +168,15 @@ class FileHelper:
         """
         episode_str = re.search(f"({_episode_re_1}|{_episode_re_2})", title, flags=re.IGNORECASE)
         episodes_str = re.search(f"({_episodes_re_1}|{_episodes_re_2})", title, flags=re.IGNORECASE)
-        # 集组
-        if episodes_str:
-            return self.get_episode_info(episodes_str)
-        # 集
-        elif episode_str:
-            episode = episode_str.group(1)
-            episode_num = re.findall(_numbers_re, episode, flags=re.IGNORECASE)[0]
-            return int(cn2an.cn2an(episode_num, mode='smart')), None, 1
-        else:
-            # 获取自定义识别词中的已有的集偏移信息进行匹配集数和集组的信息
-            if self.offset_words_info:
-                for offset_word_info in self.offset_words_info:
-                    front = offset_word_info.FRONT
-                    back = offset_word_info.BACK
-                    offset = offset_word_info.OFFSET
-                    offset_word = f"{front}@{back}@{offset}"
-                    custom_episodes_words_str = re.search(
-                        rf'(?<=(?:{front}))((?:\d+|[一二三四五六七八九十]+)\s*\W*\s*(?:\d+|[一二三四五六七八九十]+))(?!(?:{back}))', title,
-                        flags=re.IGNORECASE)
-                    # 限定替换字符条件
-                    if custom_episodes_words_str \
-                            and re.search(front, title) \
-                            and re.search(back, title):
-                        return self.get_episode_info(custom_episodes_words_str)
+        try:
+            # 集组
+            if episodes_str:
+                return self.get_episode_info(episodes_str)
+            # 集
+            elif episode_str:
+                episode = episode_str.group(1)
+                episode_num = re.findall(_numbers_re, episode, flags=re.IGNORECASE)[0]
+                return int(cn2an.cn2an(episode_num, mode='smart')), None, 1
             else:
                 # 采用anitopy
                 anitopy_info = anitopy.parse(title)
@@ -206,13 +191,31 @@ class FileHelper:
                         total_episode = 1
                     return begin_episode, end_episode, total_episode
                 else:
-                    # 自定义情况
-                    custom_episodes_words_str = re.search(r'(\d+\s*\W*\s*\d+)|(\d+)\W+', title.split('.')[0],
-                                                          flags=re.IGNORECASE)
-                    if custom_episodes_words_str:
+                    # 获取自定义识别词中的已有的集偏移信息进行匹配集数和集组的信息
+                    offset_word_info_list = [offset_word_info if re.search(offset_word_info.FRONT, title)
+                                             and re.search(offset_word_info.BACK, title) else None
+                                             for offset_word_info in self.offset_words_info]
+                    offset_word_info_list = list(filter(None, offset_word_info_list))
+                    if offset_word_info_list:
+                        front = offset_word_info_list[0].FRONT
+                        back = offset_word_info_list[0].BACK
+                        offset = offset_word_info_list[0].OFFSET
+                        offset_word = f"{front}@{back}@{offset}"
+                        custom_episodes_words_str = re.search(
+                            rf'(?<=(?:{front}))((?:\d+|[一二三四五六七八九十]+)\s*\W*\s*(?:\d+|[一二三四五六七八九十]+))(?!(?:{back}))',
+                            title,
+                            flags=re.IGNORECASE)
                         return self.get_episode_info(custom_episodes_words_str)
                     else:
-                        return 1, None, 1
+                        # 自定义情况
+                        custom_episodes_words_str = re.search(r'(\d+\s*\W*\s*\d+)|(\d+)\W+', title.split('.')[0],
+                                                              flags=re.IGNORECASE)
+                        if custom_episodes_words_str:
+                            return self.get_episode_info(custom_episodes_words_str)
+                        else:
+                            return 1, None, 1
+        except Exception as err:
+            log.error(f'【FileCore】获取集信息报错：{str(err)} - {traceback.format_exc()}')
 
     def handle_medias_df_dic(self, rmt):
         """
