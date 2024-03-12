@@ -3908,8 +3908,8 @@ class WebAction:
         查询所有过滤规则
         """
         RuleGroups = Filter().get_rule_infos()
-        sql_file = os.path.join(Config().get_root_path(),
-                                "config", "init_filter.sql")
+        sql_file = os.path.join(Config().get_script_path(),
+                                "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_list = f.read().split(';\n')
             Init_RuleGroups = []

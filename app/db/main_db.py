@@ -30,10 +30,20 @@ class MainDb:
     def session(self):
         return _Session()
 
-    @staticmethod
-    def init_db():
+    def init_db(self):
         with lock:
             Base.metadata.create_all(_Engine)
+            self.init_db_version()
+            
+    def init_db_version(self):
+        """
+        初始化数据库版本
+        """
+        try:
+            self.excute("delete from alembic_version where 1")
+            self.commit()
+        except Exception as err:
+            print(str(err))
 
     def init_data(self):
         """
@@ -41,7 +51,7 @@ class MainDb:
         """
         config = Config().get_config()
         init_files = Config().get_config("app").get("init_files") or []
-        config_dir = os.path.join(Config().get_root_path(), "config")
+        config_dir = Config().get_script_path()
         sql_files = PathUtils.get_dir_level1_files(in_path=config_dir, exts=".sql")
         config_flag = False
         for sql_file in sql_files:

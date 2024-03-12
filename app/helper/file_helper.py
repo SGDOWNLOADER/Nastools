@@ -3,7 +3,7 @@ from config import RMT_MEDIAEXT, RMT_SUBEXT, _season_re_1, _season_re_2, _season
 import regex as re
 import pandas as pd
 from app.helper import DbHelper
-from app.utils import PathUtils, Tokens
+from app.utils import PathUtils
 from app.media.meta.metavideo import get_file_md5
 import os
 import cn2an
@@ -248,15 +248,15 @@ class FileHelper:
                 log.info('【FileCore】' + level1_path)
         return df_list_level2, df_list_level1
 
-    def handle_leve1_medias_df_dic(self, df_list_level1, begin_season, end_season):
+    def handle_leve1_medias_df_dic(self, df_list, begin_season, end_season):
         """
         通过获取季数来处理的一级目录下的媒体文件信息（/银魂/S01E01.mp4）
-        :param df_list_level1: 传入的1级目录的列表
+        :param df_list: 传入的1级目录的列表
         :param begin_season: 传入的起始季的数字
         :param end_season: 传入的结束季的数字
         """
         df_list_level1_s = []
-        for df in df_list_level1:
+        for df in df_list:
             season_str = self.get_season_str(begin_season, end_season)
             path = os.path.join(list(df.keys())[0], season_str)
             new_dir_dic = {path: []}

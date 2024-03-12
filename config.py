@@ -148,7 +148,8 @@ class Config(object):
     _config_path = None
 
     def __init__(self):
-        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') else r'E:\codes\github\Nastools\config\config.yaml'
+        self._config_path = os.environ.get('NASTOOL_CONFIG') if os.environ.get('NASTOOL_CONFIG') \
+            else r'E:\codes\github\Nastools\config\config.yaml'
         if not os.environ.get('TZ'):
             os.environ['TZ'] = 'Asia/Shanghai'
         self.init_syspath()
@@ -215,6 +216,9 @@ class Config(object):
 
     def get_inner_config_path(self):
         return os.path.join(self.get_root_path(), "config")
+
+    def get_script_path(self):
+        return os.path.join(self.get_root_path(), "scripts", "sqls")
 
     def get_domain(self):
         domain = (self.get_config('app') or {}).get('domain')

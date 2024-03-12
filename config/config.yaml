@@ -55,14 +55,6 @@ app:
   # Debug mode
   debug: true
 
-# 【配置媒体库信息】
-  init_files:
-  - init_filter.sql
-  - init_userrss_v3.sql
-  - reset_db_version.sql
-  - update_subscribe.sql
-  - update_userpris.sql
-  - update_userrss.sql
 media:
   # 【媒体库管理软件】：emby、jellyfin、plex，需要在emby或jellyfin或plex区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
   media_server: emby
