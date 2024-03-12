@@ -30,33 +30,6 @@ class FileHelper:
     def init_config(self):
         self.dbhelper = DbHelper()
         self.offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
-    
-    # def get_esp_num(self, title):
-    #     """
-    #     获取文件名中的集数
-    #     :param title: 文件名
-    #     :return: esp_num
-    #     """
-    #     esp_num = None
-    #     episode_str = re.search(r'%s' % _subtitle_episode_re, title, re.IGNORECASE)
-    #     episodes = episode_str.group(1) if episode_str else None
-    #     if episodes:
-    #         esp_num = episodes.upper().replace("E", "").replace("P", "").strip()
-    #     else:
-    #         if self.offset_words_info:
-    #             for offset_word_info in self.offset_words_info:
-    #                 front = offset_word_info.FRONT
-    #                 back = offset_word_info.BACK
-    #                 offset = offset_word_info.OFFSET
-    #                 offset_word = f"{front}@{back}@{offset}"
-    #                 offset_word_info_re = re.compile(rf'(?<=(?:{front}))(\d+)(?!(?:{back}))')
-    #                 while re.findall(offset_word_info_re, title):
-    #                     esp_num = re.findall(offset_word_info_re, title)[0]
-    #             if not esp_num:
-    #                 esp_num = re.findall(r'\d+', title)[0]
-    #         else:
-    #             esp_num = re.findall(r'\d+', title)[0]
-    #     return esp_num
 
     @staticmethod
     def list_to_be(pat_str, flag):
@@ -67,7 +40,7 @@ class FileHelper:
         :return: begin_season:
         end_season:
         """
-        split_str = re.findall(r'\W', pat_str)[0] if re.findall(r'\W', pat_str) else flag
+        split_str = re.findall(r'\W+', pat_str)[0] if re.findall(r'\W+', pat_str) else flag
         num_lst = list(filter(lambda x: x is not None and x != '', pat_str.split(split_str.upper())))
         num_lst = [re.findall(_numbers_re, num, flags=re.IGNORECASE)[0]
                    if re.findall(_numbers_re, num, flags=re.IGNORECASE) else None for num in num_lst]
@@ -90,7 +63,7 @@ class FileHelper:
         # 季组
         if seasons_str:
             total_season = 1
-            seasons = seasons_str.group(1)
+            seasons = seasons_str.group(0)
             try:
                 begin_season, end_season = self.list_to_be(seasons, 's')
             except Exception as err:
@@ -104,7 +77,7 @@ class FileHelper:
                 total_season = (end_season - begin_season) + 1
         # 季
         elif season_str:
-            season = season_str.group(1)
+            season = season_str.group(0)
             season_num = re.findall(_numbers_re, season, flags=re.IGNORECASE)[0]
             begin_season = int(cn2an.cn2an(season_num, mode='smart'))
             end_season = None
@@ -145,7 +118,7 @@ class FileHelper:
         """
 
         total_episode = 1
-        episodes = pattern.group(1)
+        episodes = pattern.group(0)
         try:
             begin_episode, end_episode = self.list_to_be(episodes, 'e')
         except Exception as err:
@@ -187,41 +160,41 @@ class FileHelper:
                 return self.get_episode_info(episodes_str)
             # 集
             elif episode_str:
-                episode = episode_str.group(1)
+                episode = episode_str.group(0)
                 episode_num = re.findall(_numbers_re, episode, flags=re.IGNORECASE)[0]
                 return int(cn2an.cn2an(episode_num, mode='smart')), None, 1
             else:
-                # 采用anitopy
-                anitopy_info = anitopy.parse(title)
-                if anitopy_info.get('episode_number'):
-                    if isinstance(anitopy_info.get('episode_number'), list):
-                        begin_episode = int(anitopy_info.get('episode_number')[0])
-                        end_episode = int(anitopy_info.get('episode_number')[-1])
-                        total_episode = (end_episode - begin_episode) + 1
-                    else:
-                        begin_episode = int(anitopy_info.get('episode_number'))
-                        end_episode = None
-                        total_episode = 1
-                    return begin_episode, end_episode, total_episode
+                # 获取自定义识别词中的已有的集偏移信息进行匹配集数和集组的信息
+                offset_word_info_list = [offset_word_info if re.search(offset_word_info.FRONT, title)
+                                                             and re.search(offset_word_info.BACK, title) else None
+                                         for offset_word_info in self.offset_words_info]
+                offset_word_info_list = list(filter(None, offset_word_info_list))
+                if offset_word_info_list:
+                    front = offset_word_info_list[0].FRONT
+                    back = offset_word_info_list[0].BACK
+                    custom_episodes_words_pat = rf'(?<=(?:{front}))((?:\d+|[一二三四五六七八九十]+)\s*\W*\s*(?:\d+|[一二三四五六七八九十]+))(?!(?:{back}))'
+                    custom_episode_words_pat = rf'(?<=(?:{front}))(?:\d+|[一二三四五六七八九十]+)(?!(?:{back}))'
+                    custom_episodes_words_str = re.search(custom_episodes_words_pat, title, flags=re.IGNORECASE)
+                    custom_episode_words_str = re.search(custom_episode_words_pat, title, flags=re.IGNORECASE)
+                    custom_ep_words_str = custom_episodes_words_str if custom_episodes_words_str \
+                        else custom_episode_words_str
+                    return self.get_episode_info(custom_ep_words_str)
                 else:
-                    # 获取自定义识别词中的已有的集偏移信息进行匹配集数和集组的信息
-                    offset_word_info_list = [offset_word_info if re.search(offset_word_info.FRONT, title)
-                                             and re.search(offset_word_info.BACK, title) else None
-                                             for offset_word_info in self.offset_words_info]
-                    offset_word_info_list = list(filter(None, offset_word_info_list))
-                    if offset_word_info_list:
-                        front = offset_word_info_list[0].FRONT
-                        back = offset_word_info_list[0].BACK
-                        offset = offset_word_info_list[0].OFFSET
-                        offset_word = f"{front}@{back}@{offset}"
-                        custom_episodes_words_str = re.search(
-                            rf'(?<=(?:{front}))((?:\d+|[一二三四五六七八九十]+)\s*\W*\s*(?:\d+|[一二三四五六七八九十]+))(?!(?:{back}))',
-                            title,
-                            flags=re.IGNORECASE)
-                        return self.get_episode_info(custom_episodes_words_str)
+                    # 采用anitopy
+                    anitopy_info = anitopy.parse(title)
+                    if anitopy_info.get('episode_number'):
+                        if isinstance(anitopy_info.get('episode_number'), list):
+                            begin_episode = int(anitopy_info.get('episode_number')[0])
+                            end_episode = int(anitopy_info.get('episode_number')[-1])
+                            total_episode = (end_episode - begin_episode) + 1
+                        else:
+                            begin_episode = int(anitopy_info.get('episode_number'))
+                            end_episode = None
+                            total_episode = 1
+                        return begin_episode, end_episode, total_episode
                     else:
                         # 自定义情况
-                        custom_episodes_words_str = re.search(r'(\d+\s*\W*\s*\d+)|(\d+)\W+', title.split('.')[0],
+                        custom_episodes_words_str = re.search(r'(\d+\s*\W*\s*\d+)|(\d+)\W?', title.split('.')[0],
                                                               flags=re.IGNORECASE)
                         if custom_episodes_words_str:
                             return self.get_episode_info(custom_episodes_words_str)
@@ -348,9 +321,10 @@ class FileHelper:
         df_sorted['sort_end_episode'] = [
             df_sorted.loc[0: i, ["total_episode"]].sum(axis=0)['total_episode'] if not pd.isna(
                 df_sorted['end_episode'][i]) else None for i in range(0, df_sorted.shape[0])]
-        df_sorted['sort_begin_episode'] = [df_sorted['sort_end_episode'][i - 1] + 1 if not pd.isna(
-            df_sorted['sort_end_episode'][i]) and i > 1 and not pd.isna(df_sorted['sort_end_episode'][i - 1]) else i + 1
-                                           for i in range(0, df_sorted.shape[0])]
+        df_sorted['sort_begin_episode'] = [1 if i == 0 else (
+            df_sorted.loc[0: i - 1, ["total_episode"]].sum(axis=0)['total_episode'] + 1 if pd.isna(
+                df_sorted['sort_end_episode'][i - 1]) else df_sorted['sort_end_episode'][i - 1] + 1) for i in
+                                           range(0, df_sorted.shape[0])]
         df_sorted['begin_season'] = begin_season_ls
         df_sorted['end_season'] = end_season_ls
         df_sorted['total_season'] = total_season_ls
