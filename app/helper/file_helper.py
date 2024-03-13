@@ -389,10 +389,10 @@ class FileHelper:
                                                 begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
-                        # os.rename(df_sorted['original_file_path'][i], df_sorted['new_sort_file_path'][i])
+                        os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
                         log.info(f"【FileCore】媒体文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
                     else:
-                        # os.rename(df_sorted['original_file_path'][i], df_sorted['new_file_path'][i])
+                        os.rename(df['original_file_path'][i], df['new_file_path'][i])
                         log.info(f"【FileCore】媒体文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
             # 字幕文件
             df_list_level2_sub, df_list_level1_sub = self.handle_medias_df_dic(rmt=RMT_SUBEXT)
@@ -403,13 +403,12 @@ class FileHelper:
                                          begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
-                        # os.rename(df_sorted['original_file_path'][i], df_sorted['new_sort_file_path'][i])
+                        os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
                         log.info(
                             f"【FileCore】字幕文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
                     else:
-                        # os.rename(df_sorted['original_file_path'][i], df_sorted['new_file_path'][i])
+                        os.rename(df['original_file_path'][i], df['new_file_path'][i])
                         log.info(f"【FileCore】字幕文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
-
         except Exception as err:
             log.error(f'【FileCore】预处理报错：{str(err)} - {traceback.format_exc()}')
 
@@ -426,8 +425,8 @@ if __name__ == '__main__':
                                         begin_episode_ls, end_episode_ls, total_episode_ls)
         for i in range(0, len(df)):
             if sortflag:
-                # os.rename(df_sorted['original_file_path'][i], df_sorted['new_sort_file_path'][i])
+                # os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
                 log.debug(f"【FileCore】识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
             else:
-                # os.rename(df_sorted['original_file_path'][i], df_sorted['new_file_path'][i])
+                # os.rename(df['original_file_path'][i], df['new_file_path'][i])
                 log.debug(f"【FileCore】未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
