@@ -893,7 +893,20 @@ class Media:
                         else:
                             # 缓存为未识别
                             # 存在缓存过期删除后数据失效的问题
-                            file_media_info = None
+                            file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
+                                                                 first_media_year=meta_info.year,
+                                                                 search_type=meta_info.type,
+                                                                 media_year=meta_info.year,
+                                                                 season_number=meta_info.begin_season)
+                            if not file_media_info:
+                                if self._rmt_match_mode == MatchMode.NORMAL:
+                                    # 去掉年份再查一次，有可能是年份错误
+                                    file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
+                                                                         search_type=meta_info.type)
+                            if not file_media_info and self._search_tmdbweb:
+                                # 从网站查询
+                                file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
+                                                                         mtype=meta_info.type)
                     # 赋值TMDB信息
                     meta_info.set_tmdb_info(file_media_info)
                 # 自带TMDB信息

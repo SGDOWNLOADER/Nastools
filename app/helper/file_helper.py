@@ -389,11 +389,19 @@ class FileHelper:
                                                 begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
-                        os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
-                        log.info(f"【FileCore】媒体文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+                        if not os.path.exists(df['new_sort_file_path'][i]):
+                            os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+                            log.info(f"【FileCore】媒体文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+                        else:
+                            log.info(
+                                f"【FileCore】媒体文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
                     else:
-                        os.rename(df['original_file_path'][i], df['new_file_path'][i])
-                        log.info(f"【FileCore】媒体文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+                        if not os.path.exists(df['new_file_path'][i]):
+                            os.rename(df['original_file_path'][i], df['new_file_path'][i])
+                            log.info(f"【FileCore】媒体文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+                        else:
+                            log.info(
+                                f"【FileCore】媒体文件 未识别到重新排序标记：替换文件 {df['new_file_path'][i]}已存在")
             # 字幕文件
             df_list_level2_sub, df_list_level1_sub = self.handle_medias_df_dic(rmt=RMT_SUBEXT)
             for df_level2_sub in df_list_level2_sub:
@@ -403,12 +411,20 @@ class FileHelper:
                                          begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
-                        os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
-                        log.info(
-                            f"【FileCore】字幕文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+                        if not os.path.exists(df['new_sort_file_path'][i]):
+                            os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+                            log.info(
+                                f"【FileCore】字幕文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+                        else:
+                            log.info(
+                                f"【FileCore】字幕文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
                     else:
-                        os.rename(df['original_file_path'][i], df['new_file_path'][i])
-                        log.info(f"【FileCore】字幕文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+                        if not os.path.exists(df['new_file_path'][i]):
+                            os.rename(df['original_file_path'][i], df['new_file_path'][i])
+                            log.info(f"【FileCore】字幕文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+                        else:
+                            log.info(
+                                f"【FileCore】字幕文件 未识别到重新排序标记：替换文件 {df['new_file_path'][i]}已存在")
         except Exception as err:
             log.error(f'【FileCore】预处理报错：{str(err)} - {traceback.format_exc()}')
 
