@@ -7,7 +7,8 @@ from app.media.meta._base import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
-from config import _name_no_begin_re
+from config import _name_no_begin_re, _numbers_re
+import copy
 
 
 class MetaAnime(MetaBase):
@@ -15,7 +16,7 @@ class MetaAnime(MetaBase):
     识别动漫
     """
     _anime_no_words = ['CHS&CHT', 'MP4', 'GB MP4', 'WEB-DL', 'CHT', 'CHS']
-    _name_nostring_re = r"S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}"
+    _name_nostring_re = r"S\d{2}\s*\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}"
 
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
@@ -28,6 +29,7 @@ class MetaAnime(MetaBase):
             anitopy_info_origin = anitopy.parse(title)
             title = self.__prepare_title(title)
             anitopy_info = anitopy.parse(title)
+            part_name = None
             if anitopy_info:
                 # 名称
                 name = anitopy_info.get("anime_title")
@@ -41,6 +43,11 @@ class MetaAnime(MetaBase):
                     name_match = re.search(r'\[(.+?)]', title)
                     if name_match and name_match.group(1):
                         name = name_match.group(1).strip()
+                if name and len(name.split(" ")) >= 2:
+                    name_copy = copy.deepcopy(name)
+                    name = name.split(" ")[0].strip()
+                    part_name_str = name_copy.split(" ")[-1].strip()
+                    part_name = re.findall(self._name_nostring_re, part_name_str)
                 # 拆份中英文名称
                 if name:
                     lastword_type = ""
@@ -73,7 +80,9 @@ class MetaAnime(MetaBase):
                 if str(year).isdigit():
                     self.year = str(year)
                 # 季号
-                anime_season = anitopy_info.get("anime_season")
+                anime_season = anitopy_info.get("anime_season") if not part_name else \
+                    (re.findall(_numbers_re, part_name[0]) if len(re.findall(_numbers_re, part_name[0])) != 1 else
+                     re.findall(_numbers_re, part_name[0])[0])
                 if isinstance(anime_season, list):
                     if len(anime_season) == 1:
                         begin_season = anime_season[0]
@@ -96,7 +105,9 @@ class MetaAnime(MetaBase):
                         self.total_seasons = 1
                     self.type = MediaType.TV
                 # 集号
-                episode_number = anitopy_info.get("episode_number")
+                episode_number = anitopy_info.get("episode_number") if not part_name else \
+                    (re.findall(_numbers_re, part_name[-1]) if len(re.findall(_numbers_re, part_name[-1])) != 1 else
+                     re.findall(_numbers_re, part_name[-1])[0])
                 if isinstance(episode_number, list):
                     if len(episode_number) == 1:
                         begin_episode = episode_number[0]
