@@ -162,6 +162,7 @@ class WordsHelper:
                 episode_num_int = int(cn2an.cn2an(episode_num_str, "smart"))
                 offset_caculate = offset.replace("EP", str(episode_num_int))
                 episode_num_offset_int = int(eval(offset_caculate))
+
                 # 向前偏移
                 if episode_num_int > episode_num_offset_int:
                     offset_order_flag = True
@@ -177,6 +178,8 @@ class WordsHelper:
                         episode_num_offset_str = f"{count_0[0]}{episode_num_offset_int}"
                     else:
                         episode_num_offset_str = str(episode_num_offset_int)
+                episode_num_offset_str = f"0{episode_num_offset_str}" if len(episode_num_offset_str) == 1 \
+                    else episode_num_offset_str
                 episode_nums_offset_str.append(episode_num_offset_str)
             episode_nums_dict = dict(zip(episode_nums_str, episode_nums_offset_str))
             # 集数向前偏移，集数按升序处理
