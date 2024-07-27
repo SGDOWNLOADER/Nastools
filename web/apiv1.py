@@ -975,10 +975,10 @@ class ConfigRestore(ClientResource):
         return WebAction().api_action(cmd='restory_backup', data=self.parser.parse_args())
 
 
-@config.route('/neaten')
+@config.route('/neaten/all')
 class ConfigRestore(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('sort_name', type=int, help='是否重新排序', location='form', required=True)
+    parser.add_argument('sort_name', type=str, help='是否重新排序', location='form', required=True)
 
     @config.doc(parser=parser)
     def post(self):
@@ -986,6 +986,22 @@ class ConfigRestore(ClientResource):
         目录预处理
         """
         return WebAction().api_action(cmd='dir_auto_preconditioning', data=self.parser.parse_args())
+
+
+@config.route('/neaten/level1')
+class ConfigRestore(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('rename_inpath', type=str, help='输入路径', location='form', required=True)
+    parser.add_argument('sort_name', type=str, help='排序选择', location='form', required=True)
+    parser.add_argument('rename_season', type=str, help='季', location='form')
+    parser.add_argument('rename_episode_offset', type=str, help='集数偏移量', location='form')
+
+    @config.doc(parser=parser)
+    def post(self):
+        """
+        处理只含文件的目录
+        """
+        return WebAction().api_action(cmd='dir_preconditioning_level1', data=self.parser.parse_args())
 
 
 @config.route('/info')

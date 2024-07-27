@@ -667,6 +667,221 @@
     </div>
   </div>
 </div>
+<!-- 手动修改目录文件 -->
+<div class="modal modal-blur fade" id="modal-media-edit" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rename_header">预处理一级目录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row" id="rename_path_div">
+          <div class="col-lg-9">
+            <div class="mb-3">
+              <label class="form-label required">路径</label>
+              <input type="text" id="rename_path" class="form-control" readonly>
+              <input type="hidden" id="rename_source">
+              <input type="hidden" id="rename_manual_type">
+              <input type="hidden" id="unknown_id">
+              <input type="hidden" id="transferlog_id" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">转移方式</label>
+              <select id="rename_syncmod_manual" class="form-select">
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}" {% if SyncMod==mode.value %}selected{% endif %}>{{ mode.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3" id="rename_inpath_div">
+          <label class="form-label required">输入路径</label>
+          <input type="text" id="rename_inpath" class="form-control filetree-folders-only"
+                 placeholder="需要转移的目录或文件"
+                 autocomplete="off">
+        </div>
+        <div class="row" id="rename_outpath_div">
+          <div class="col-lg-9">
+            <div class="mb-3">
+              <label class="form-label">输出路径</label>
+              <input type="text" id="rename_outpath" class="form-control filetree-folders-only"
+                     placeholder="转移后文件存储路径，留空则转移至媒体库" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">转移方式</label>
+              <select id="rename_syncmod_customize" class="form-select">
+                <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
+                <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
+                <option value="copy" {% if SyncMod=="copy" %} selected="selected" {% endif %}>复制</option>
+                <option value="move" {% if SyncMod=="move" %} selected="selected" {% endif %}>移动</option>
+                <option value="rclonecopy" {% if SyncMod=="rclonecopy" %} selected="selected" {% endif %}>Rclone复制
+                </option>
+                <option value="rclone" {% if SyncMod=="rclone" %} selected="selected" {% endif %}>Rclone移动</option>
+                <option value="miniocopy" {% if SyncMod=="miniocopy" %} selected="selected" {% endif %}>Minio复制
+                </option>
+                <option value="minio" {% if SyncMod=="minio" %} selected="selected" {% endif %}>Minio移动</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <label class="form-label">类型</label>
+        <div class="form-selectgroup-boxes row mb-3">
+          <div class="col-lg-4">
+            <div class="mb-1">
+              <label class="form-selectgroup-item">
+                <input type="radio" id="rename_type_mov" name="rename_type" value="MOV" class="form-selectgroup-input"
+                       checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电影</span>
+                    </span>
+                  </span>
+              </label>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-1">
+              <label class="form-selectgroup-item">
+                <input type="radio" id="rename_type_tv" name="rename_type" value="TV" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                    </span>
+                  </span>
+              </label>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-1">
+              <label class="form-selectgroup-item">
+                <input type="radio" id="rename_type_anime" name="rename_type" value="ANIME"
+                       class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">动漫</span>
+                    </span>
+                  </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">TMDB ID</label>
+              <div class="input-group">
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
+                <button class="btn" type="button" onclick="show_search_tmdbid_modal('rename_tmdb', 'modal-media-identification')">查询</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4" id="rename_season_div">
+            <div class="mb-3">
+              <label class="form-label">季</label>
+              <select class="form-select" id="rename_season">
+                <option value="" selected>请选择</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-4" id="rename_min_filesize_div">
+            <div class="mb-3">
+              <label class="form-label">最小文件大小 <span class="form-help" title="留空将使用基础设置中的转移最小文件大小设置，如不限制大小需输入0" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+            </div>
+          </div>
+          <div class="col-lg-12" id="rename_episode_div">
+            <div class="mb-3">
+              <label class="form-label">集数定位 <span class="form-help"
+                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
+                                                       data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
+              <div class="row">
+                <div class="col-4">
+                  <input type="text" id="rename_episode" class="form-control" placeholder="{ep}定位集数">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_details" class="form-control"
+                         placeholder="起始集[,终止集]，如1或1,2">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_offset" class="form-control" placeholder="集数偏移，如-10">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" id="identification_action_btn" class="btn btn-primary"
+                onclick="manual_media_transfer()">转移
+        </button>
+      </div>
+    </div>
+{#    <div class="modal-content">#}
+{#      <div class="modal-header">#}
+{#        <h5 class="modal-title" id="rename_header">批量规整一级目录</h5>#}
+{#        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#      </div>#}
+{#      <div class="modal-body">#}
+{#        <div class="mb-3" id="rename_inpath_div">#}
+{#          <label class="form-label required">输入路径</label>#}
+{#          <input type="text" id="rename_inpath" class="form-control filetree-folders-only"#}
+{#                 placeholder="需要转移的目录或文件"#}
+{#                 autocomplete="off">#}
+{#        </div>#}
+{#        <div class="row">#}
+{#            <div class="col-lg-4" id="sort_name_div">#}
+{#            <div class="mb-3">#}
+{#                <label class="form-label">排序选择 <span class="form-help"#}
+{#                  title="用于对预处理目录下按季的目录里面的数字从小到大从01开始排序重命名" data-bs-toggle="tooltip">?</span></label>#}
+{#                <select class="form-select" id="sort_name">#}
+{#                  <option value="0">是</option>#}
+{#                    <option value="1">否</option>#}
+{#                </select>#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="col-lg-4" id="rename_season_div">#}
+{#            <div class="mb-3">#}
+{#            <label class="form-label">季 <span class="form-help"#}
+{#                                       title="需要覆盖的季数，空值默认不修改"#}
+{#                                       data-bs-toggle="tooltip" data-bs-html="true">?</span></label>#}
+{#              <input type="text" id="rename_season" class="form-control">#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="col-lg-4" id="rename_episode_offset_div">#}
+{#            <div class="mb-3">#}
+{#              <label class="form-label">集数偏移量 <span class="form-help"#}
+{#                                                       title="根据偏移量再重新排序的集数（从第1集上）上进行+偏移量"#}
+{#                                                       data-bs-toggle="tooltip" data-bs-html="true">?</span></label>#}
+{#                <input type="text" id="rename_episode_offset" class="form-control">#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{#      <div class="modal-footer">#}
+{#        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>#}
+{#          <button class="btn" type="button" onclick="dir_preconditioning_level1('rename_inpath', 'sort_name', 'rename_season', 'rename_episode_offset')">修改</button>#}
+{#        <button type="button" id="edit_action_btn" class="btn btn-primary">修改</button>#}
+{#      </div>#}
+{#    </div>#}
+  </div>
+</div>
 <!-- 手动下载 -->
 <div class="modal modal-blur fade" id="modal-search-download" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered" role="document">
@@ -972,18 +1187,40 @@
   // 预处理提交
   // sort_name: 0-重新排序，1-正常顺序
 
-  function dir_auto_preconditioning(name, func) {
-    if (!name) {
+  function dir_auto_preconditioning(sort_name,  func) {
+    if (!sort_name ) {
       return;
     }
-    ajax_post("dir_auto_preconditioning", {"sort_name": name}, function (ret) {
+    ajax_post("dir_auto_preconditioning", {
+        "sort_name": sort_name
+    }, function (ret) {
       if (func) {
         func();
       }
     });
   }
 
-  // 预处理目录的处理结果呈现
+  // 批量修改
+  // sort_name: 0-重新排序，1-正常顺序
+
+  function dir_preconditioning_level1(rename_inpath, sort_name, rename_season, rename_episode_offset, func) {
+      if (!rename_inpath || !sort_name) {
+      return;
+        }
+
+
+      ajax_post("dir_preconditioning_level1", {
+            "rename_inpath": rename_inpath,
+            "sort_name": sort_name,
+            "rename_season": rename_season,
+            "rename_episode_offset": rename_episode_offset
+            },
+            function (ret) {
+          if (func) {
+            func();
+          }
+        });
+  }
 
 </script>
 
@@ -1948,6 +2185,90 @@
   }
 
 
+
+
+    // 显示手动批量修改文件名
+  // inpath: 输入路径
+    function show_manual_edit_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
+    // 初始化类型
+    if (!syncmod) {
+      syncmod = '{{ SyncMod }}';
+    }
+    let source = CURRENT_PAGE_URI;
+    if (source === 'mediafile') {
+      source = `mediafile?dir=${inpath}`;
+    }
+    $("#rename_source").val(source);
+    $("#rename_manual_type").val(manual_type);
+    if (manual_type === 3) {
+      $('#rename_header').text("自定义识别");
+      $('#rename_path_div').hide();
+      $('#rename_inpath_div').show();
+      $('#rename_outpath_div').show();
+      $("#rename_inpath").val(inpath);
+      $("#rename_outpath").val('');
+      $("#rename_syncmod_customize").val(syncmod);
+      $("#unknown_id").val("");
+      $("#transferlog_id").val("");
+    } else {
+      $('#rename_header').text("手动识别");
+      $('#rename_path_div').show();
+      $('#rename_inpath_div').hide();
+      $('#rename_outpath_div').hide();
+      $("#rename_path").val(inpath);
+      $("#rename_syncmod_manual").val(syncmod);
+      $("#unknown_id").val(unknown_id);
+      $("#transferlog_id").val(transferlog_id);
+    }
+
+    // 初始化媒体类型
+    if (media_type === "电视剧") {
+      $("#rename_type_tv").prop("checked", true);
+      $("#rename_type_mov").removeProp("checked");
+      $("#rename_type_anime").removeProp("checked");
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+    } else if (media_type === "动漫") {
+      $("#rename_type_anime").prop("checked", true);
+      $("#rename_type_tv").removeProp("checked");
+      $("#rename_type_mov").removeProp("checked");
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+    } else {
+      $("#rename_type_mov").prop("checked", true);
+      $("#rename_type_tv").removeProp("checked");
+      $("#rename_type_anime").removeProp("checked");
+      $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_season").val("");
+    }
+
+    // 清空输入框
+    $("#rename_min_filesize").val("");
+    $("#rename_episode").val("");
+    $("#rename_episode_details").val("");
+    $("#rename_episode_offset").val("");
+    $("#rename_season").val("");
+    $("#rename_tmdb").val("");
+
+    // 显示窗口
+    $("#modal-media-identification").modal("show");
+
+  }
+   {#function show_manual_edit_modal(inpath, sort_name) {#}
+  {#  // 初始化类型#}
+  {#  $('#rename_header').text("批量规整一级目录");#}
+  {#  $('#rename_inpath_div').show();#}
+  {#  $("#rename_inpath").val(inpath);#}
+  {#  $("#sort_name").val(sort_name);#}
+  {##}
+  {#  // 清空输入框#}
+  {#  $("#rename_season").val("");#}
+  {#  $("#rename_episode_offset").val("");#}
+  {#  // 显示窗口#}
+  {#  $("#modal-media-edit").modal("show");#}
+  {#}#}
+
   // 重新识别
   function re_identification(flag, ids) {
     ajax_post("re_identification", {"flag": flag, "ids": ids}, function (ret) {
@@ -2065,6 +2386,27 @@
         });
       }
     });
+  }
+
+    //执行批量修改（文件管理）
+  $("#edit_action_btn").unbind("click").click(function () {
+    manual_media_edit($(this));
+  });
+
+  // 执行批量修改（文件管理）
+  function manual_media_edit(btn_obj) {
+      // 申明变量
+    const in_path = $("#rename_inpath").val();
+    const sort_name = $('#sort_name').val();
+    const rename_season = $("#rename_season").val();
+    const rename_episode_offset = $("#rename_episode_offset").val();
+
+    // 开始处理
+    btn_obj.text("修改中...").attr("disabled", true);
+    dir_preconditioning_level1(in_path, sort_name, rename_season, rename_episode_offset, function () {
+      btn_obj.text("修改").attr("disabled", false);
+    });
+
   }
 
   // 查示查询TMDBID的对话框

@@ -124,6 +124,7 @@ class WebAction:
             "refresh_process": self.__refresh_process,
             "restory_backup": self.__restory_backup,
             "dir_auto_preconditioning": self.__dir_auto_preconditioning,
+            "dir_preconditioning_level1": self.__dir_preconditioning_level1,
             "start_mediasync": self.__start_mediasync,
             "mediasync_state": self.__mediasync_state,
             "get_tvseason_list": self.__get_tvseason_list,
@@ -2642,11 +2643,30 @@ class WebAction:
         try:
             for preconditioning_path in preconditioning_paths:
                 filehelper = FileHelper(preconditioning_path)
-                filehelper.run(sort_flag)
+                filehelper.run_medianame_dir(sort_flag)
                 return {"code": 0, "msg": ""}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
+
+    @staticmethod
+    def __dir_preconditioning_level1(data):
+        """
+        修改一层目录的文件
+        """
+        rename_inpath = data.get("rename_inpath")
+        sort_name = data.get("sort_name")
+        rename_season = data.get("rename_season")
+        rename_episode_offset = data.get("rename_episode_offset")
+        sort_flag = True if sort_name == "0" else False
+        try:
+            filehelper = FileHelper(rename_inpath)
+            filehelper.run_level1_dir(sort_flag, rename_season, rename_episode_offset)
+            return {"code": 0, "msg": ""}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": str(e)}
+
 
     @staticmethod
     def __start_mediasync(data):

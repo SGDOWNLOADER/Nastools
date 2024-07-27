@@ -101,7 +101,7 @@ class FileHelper:
                 else 'S' + str(begin_season)
             end_season_str = 'S0' + str(end_season) if len(str(end_season)) == 1 \
                 else 'S' + str(end_season)
-            season_str = begin_season_str + '-' + end_season_str
+            season_str = begin_season_str + end_season_str
         else:
             begin_season_str = 'S0' + str(begin_season) if len(str(begin_season)) == 1 \
                 else 'S' + str(begin_season)
@@ -299,7 +299,7 @@ class FileHelper:
 
     @staticmethod
     def create_info_df(df_dic, begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls,
-                       total_episode_ls):
+                       total_episode_ls, rename_season=None, offset_episode=None):
         """
         创建文件名的相关信息的DataFrame
         :param df_dic: DataFrame的字典
@@ -309,6 +309,8 @@ class FileHelper:
         :param begin_episode_ls: 识别出来的集数列表
         :param end_episode_ls: 识别出来的季数列表
         :param total_episode_ls: 识别出来的季数列表
+        :param rename_season: 修改的季数
+        :param offset_episode: 偏移的集数
         :return:
         """
         df = pd.DataFrame({list(df_dic.keys())[0]: list(df_dic.values())[0]})
@@ -317,17 +319,27 @@ class FileHelper:
         df['total_episode'] = total_episode_ls
         df_sorted = df.sort_values(by=['begin_episode'])
         df_sorted = df_sorted.reset_index()
-
         df_sorted['sort_end_episode'] = [
             df_sorted.loc[0: i, ["total_episode"]].sum(axis=0)['total_episode'] if not pd.isna(
+                df_sorted['end_episode'][i]) else None for i in range(0, df_sorted.shape[0])] if not offset_episode else \
+            [df_sorted.loc[0: i, ["total_episode"]].sum(axis=0)['total_episode'] + int(offset_episode) if not pd.isna(
                 df_sorted['end_episode'][i]) else None for i in range(0, df_sorted.shape[0])]
         df_sorted['sort_begin_episode'] = [1 if i == 0 else (
             df_sorted.loc[0: i - 1, ["total_episode"]].sum(axis=0)['total_episode'] + 1 if pd.isna(
                 df_sorted['sort_end_episode'][i - 1]) else df_sorted['sort_end_episode'][i - 1] + 1) for i in
+                                           range(0, df_sorted.shape[0])] if not offset_episode else \
+            [int(offset_episode)+1 if i == 0 else (
+            df_sorted.loc[0: i - 1, ["total_episode"]].sum(axis=0)['total_episode'] + int(offset_episode) + 1 if pd.isna(
+                df_sorted['sort_end_episode'][i - 1]) else df_sorted['sort_end_episode'][i - 1] + 1) for i in
                                            range(0, df_sorted.shape[0])]
-        df_sorted['begin_season'] = begin_season_ls
-        df_sorted['end_season'] = end_season_ls
-        df_sorted['total_season'] = total_season_ls
+        if not rename_season:
+            df_sorted['begin_season'] = begin_season_ls
+            df_sorted['end_season'] = end_season_ls
+            df_sorted['total_season'] = total_season_ls
+        else:
+            df_sorted['begin_season'] = [rename_season for i in range(0, df_sorted.shape[0])]
+            df_sorted['end_season'] = [None for i in range(0, df_sorted.shape[0])]
+            df_sorted['total_season'] = [1 for i in range(0, df_sorted.shape[0])]
         df_sorted['file_suffix'] = [os.path.splitext(df_sorted[list(df_dic.keys())[0]][i])[-1] for i in
                                     range(0, df_sorted.shape[0])]
         original_file_path = [os.path.join(df_sorted.columns[1], df_sorted[list(df_dic.keys())[0]][i]) for i in
@@ -354,8 +366,8 @@ class FileHelper:
             '0' + str(int(df_sorted['end_episode'][i])) if len(str(int(df_sorted['end_episode'][i]))) == 1 else str(
                 int(df_sorted['end_episode'][i])))) if not pd.isna(df_sorted['end_episode'][i]) else None for i in
                            range(0, df_sorted.shape[0])]
-        season_str = [begin_season_str[i] + end_season_str[i] if end_season_str[i] else begin_season_str[i] for i in
-                      range(0, df_sorted.shape[0])]
+        season_str = [begin_season_str[i] + end_season_str[i] if not pd.isna(end_season_str[i]) else
+                      begin_season_str[i] for i in range(0, df_sorted.shape[0])]
         sorted_episode_str = [
             sorted_begin_episode_str[i] + sorted_end_episode_str[i] if not pd.isna(sorted_end_episode_str[i]) else
             sorted_begin_episode_str[i] for i in range(0, df_sorted.shape[0])]
@@ -374,9 +386,9 @@ class FileHelper:
                                            range(0, df_sorted.shape[0])]
         return df_sorted
 
-    def run(self, sort_flag):
+    def run_medianame_dir(self, sort_flag):
         """
-        主程序（目前仅适用于二级目录）
+        修改媒体名最外层目录（大目录）
         :param sort_flag: 是否重新排序
         """
         try:
@@ -386,18 +398,18 @@ class FileHelper:
                 begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
                     self.get_series_ls(df_level2_media)
                 df = self.create_info_df(df_level2_media, begin_season_ls, end_season_ls, total_season_ls,
-                                                begin_episode_ls, end_episode_ls, total_episode_ls)
+                                    begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
                         if not os.path.exists(df['new_sort_file_path'][i]):
-                            os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+                            # os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
                             log.info(f"【FileCore】媒体文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
                         else:
                             log.info(
                                 f"【FileCore】媒体文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
                     else:
                         if not os.path.exists(df['new_file_path'][i]):
-                            os.rename(df['original_file_path'][i], df['new_file_path'][i])
+                            # os.rename(df['original_file_path'][i], df['new_file_path'][i])
                             log.info(f"【FileCore】媒体文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
                         else:
                             log.info(
@@ -408,11 +420,11 @@ class FileHelper:
                 begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
                     self.get_series_ls(df_level2_sub)
                 df = self.create_info_df(df_level2_sub, begin_season_ls, end_season_ls, total_season_ls,
-                                         begin_episode_ls, end_episode_ls, total_episode_ls)
+                                    begin_episode_ls, end_episode_ls, total_episode_ls)
                 for i in range(0, len(df)):
                     if sort_flag:
                         if not os.path.exists(df['new_sort_file_path'][i]):
-                            os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+                            #os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
                             log.info(
                                 f"【FileCore】字幕文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
                         else:
@@ -420,7 +432,7 @@ class FileHelper:
                                 f"【FileCore】字幕文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
                     else:
                         if not os.path.exists(df['new_file_path'][i]):
-                            os.rename(df['original_file_path'][i], df['new_file_path'][i])
+                            #os.rename(df['original_file_path'][i], df['new_file_path'][i])
                             log.info(f"【FileCore】字幕文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
                         else:
                             log.info(
@@ -428,21 +440,80 @@ class FileHelper:
         except Exception as err:
             log.error(f'【FileCore】预处理报错：{str(err)} - {traceback.format_exc()}')
 
+    def run_level1_dir(self, sort_flag, rename_season=None, offset_episode=None):
+        """
+        修改一层目录的文件
+        :param sort_flag: 是否重新排序
+        :param rename_season: 修改的季数
+        :param offset_episode: 偏移的集数
+        """
+        log.info(f"sort_flag:{sort_flag},rename_season:{rename_season},offset_episode:{offset_episode}")
+        # try:
+        #     # 媒体文件
+        #     df_list_level2_media, df_list_level1_media = self.handle_medias_df_dic(rmt=RMT_MEDIAEXT)
+        #     for df_level2_media in df_list_level2_media:
+        #         begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
+        #             self.get_series_ls(df_level2_media)
+        #         df = self.create_info_df(df_level2_media, begin_season_ls, end_season_ls, total_season_ls,
+        #                             begin_episode_ls, end_episode_ls, total_episode_ls, rename_season, offset_episode)
+        #         for i in range(0, len(df)):
+        #             if sort_flag:
+        #                 if not os.path.exists(df['new_sort_file_path'][i]):
+        #                     os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+        #                     log.info(f"【FileCore】媒体文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+        #                 else:
+        #                     log.info(
+        #                         f"【FileCore】媒体文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
+        #             else:
+        #                 if not os.path.exists(df['new_file_path'][i]):
+        #                     os.rename(df['original_file_path'][i], df['new_file_path'][i])
+        #                     log.info(f"【FileCore】媒体文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+        #                 else:
+        #                     log.info(
+        #                         f"【FileCore】媒体文件 未识别到重新排序标记：替换文件 {df['new_file_path'][i]}已存在")
+        #     # 字幕文件
+        #     df_list_level2_sub, df_list_level1_sub = self.handle_medias_df_dic(rmt=RMT_SUBEXT)
+        #     for df_level2_sub in df_list_level2_sub:
+        #         begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
+        #             self.get_series_ls(df_level2_sub)
+        #         df = self.create_info_df(df_level2_sub, begin_season_ls, end_season_ls, total_season_ls,
+        #                             begin_episode_ls, end_episode_ls, total_episode_ls)
+        #         for i in range(0, len(df)):
+        #             if sort_flag:
+        #                 if not os.path.exists(df['new_sort_file_path'][i]):
+        #                     os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
+        #                     log.info(
+        #                         f"【FileCore】字幕文件 识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+        #                 else:
+        #                     log.info(
+        #                         f"【FileCore】字幕文件 识别到重新排序标记：替换文件 {df['new_sort_file_path'][i]}已存在")
+        #             else:
+        #                 if not os.path.exists(df['new_file_path'][i]):
+        #                     os.rename(df['original_file_path'][i], df['new_file_path'][i])
+        #                     log.info(f"【FileCore】字幕文件 未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+        #                 else:
+        #                     log.info(
+        #                         f"【FileCore】字幕文件 未识别到重新排序标记：替换文件 {df['new_file_path'][i]}已存在")
+        # except Exception as err:
+        #     log.error(f'【FileCore】预处理报错：{str(err)} - {traceback.format_exc()}')
+
 
 if __name__ == '__main__':
-    dir = r'E:\test\tmp'
-    sortflag = False
+    dir = r'E:\test\tmp\蜡笔小新 合集\S01'
+    sortflag = True
     file_helper = FileHelper(dir)
+    rename_season = 3
+    offset_episode = 100
     df_list_level2, df_list_level1 = file_helper.handle_medias_df_dic(rmt=RMT_MEDIAEXT)
     for df_dic in df_list_level2:
         begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls, end_episode_ls, total_episode_ls = \
             file_helper.get_series_ls(df_dic)
-        df = file_helper.create_info_df(df_dic, begin_season_ls, end_season_ls, total_season_ls,
-                                        begin_episode_ls, end_episode_ls, total_episode_ls)
+        df = file_helper.create_info_df(df_dic, begin_season_ls, end_season_ls, total_season_ls, begin_episode_ls,
+                                        end_episode_ls, total_episode_ls, rename_season, offset_episode)
         for i in range(0, len(df)):
             if sortflag:
                 # os.rename(df['original_file_path'][i], df['new_sort_file_path'][i])
-                log.debug(f"【FileCore】识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
+                log.info(f"【FileCore】识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_sort_file_path'][i]}")
             else:
                 # os.rename(df['original_file_path'][i], df['new_file_path'][i])
-                log.debug(f"【FileCore】未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
+                log.info(f"【FileCore】未识别到重新排序标记：源文件{df['original_file_path'][i]} 已替换 {df['new_file_path'][i]}")
