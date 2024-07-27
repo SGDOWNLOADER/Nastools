@@ -102,7 +102,7 @@ websockets==10.3
 Werkzeug==2.1.2
 wsproto==1.2.0
 zhconv==1.4.3
-anitopy==2.1.1
+anitopy==2.2.0rc2
 qbittorrent-api==2023.7.52
 slack-bolt==1.16.1
 PlexAPI==4.15.0
