@@ -243,6 +243,53 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-edit-level1-dir" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">手动修改一级目录文件</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3" id="rename_inpath_div">
+          <label class="form-label required">输入路径</label>
+          <input type="text" id="rename_inpath" class="form-control filetree-folders-only"
+                 placeholder="需要转移的目录或文件"
+                 autocomplete="off">
+        </div>
+        <div class="row">
+          <div class="col-lg-4" id="resort_div">
+            <div class="mb-3">
+             <label class="form-label">排序选择 <span class="form-help"
+                  title="用于对预处理目录下按季的目录里面的数字从小到大从01开始排序重命名" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="sort_name">
+                  <option value="0">是</option>
+                    <option value="1">否</option>
+                </select>
+            </div>
+          </div>
+          <div class="col-lg-4" id="rename_season_div">
+            <div class="mb-3">
+              <label class="form-label">季 <span class="form-help" title="留空将使用默认识别到的季数" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="rename_season" class="form-control" placeholder="季数">
+            </div>
+          </div>
+          <div class="col-lg-4" id="rename_episode_offset_div">
+            <div class="mb-3">
+              <label class="form-label">集数偏移量 <span class="form-help" title="留空将不进行集数偏移，使用EP+1、2*EP或者EP-1，等同于自定义识别词" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="rename_episode_offset" class="form-control" placeholder="集数偏移量(EP+-*)">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="edit_action_btn" class="btn btn-primary">执行</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示服务提示框
   function show_service_modal(id, name) {
@@ -272,7 +319,11 @@
     }
       else if (id === "preconditioning") {
       $('#modal-preconditioning').modal('show');
-    } else {
+    }
+        else if (id === "edit-level1-dir") {
+      $('#modal-edit-level1-dir').modal('show');
+    }
+      else {
       show_ask_modal("是否立即运行 " + name + "？", function () {
         hide_ask_modal();
         run_scheduler(id, name);
@@ -348,7 +399,10 @@
   $("#preconditioning_btn").unbind("click").click(function () {
     preconditioning($(this));
   });
-
+  //手动修改一级目录文件
+  $("#edit_action_btn").unbind("click").click(function () {
+    manual_media_levell1_edit($(this));
+  });
 
   //名称识别测试
   function name_test(btn_obj) {
@@ -450,6 +504,25 @@
     });
 
   }
+
+    // 手动修改一级目录文件
+  function manual_media_levell1_edit(btn_obj) {
+      // 申明变量
+    const in_path = $("#rename_inpath").val();
+    const sort_name = $('#sort_name').val();
+    const rename_season = $('#rename_season').val();
+    const rename_episode_offset = $('#rename_episode_offset').val();
+
+
+    // 开始处理
+    btn_obj.text("修改中...").attr("disabled", true);
+    dir_preconditioning_level1(in_path, sort_name, rename_season, rename_episode_offset, function () {
+      btn_obj.text("修改").attr("disabled", false);
+    });
+
+  }
+
+
   // 初始化DropZone
   backup_dropzone = new Dropzone("#back_file");
   backup_dropzone.options.acceptedFiles = ".zip";

@@ -32,10 +32,6 @@
                 共 <span id="mediafile_num">0</span> 个文件
               </div>
               <div class="align-self-center">
-                  <a href="javascript:mediafile_edit_all()" class="btn" title="预处理一级目录">
-                  {{ SVG.transform() }}
-                  修改文件
-                </a>
                 <a href="javascript:mediafile_transfer_all()" class="btn" title="转移当前目录">
                   {{ SVG.transform() }}
                   转移目录
@@ -224,10 +220,9 @@
     show_manual_transfer_modal(3, path, '', '', '', '');
   }
   // 文件修改
-  function mediafile_edit_all() {
+  function mediafile_edit_level1() {
     let path = $("#mediafile_current_dir").val();
-    let sort_name = $("#sort_name").val();
-    show_manual_edit_modal(path, '', sort_name);
+    show_manual_edit_modal(path);
   }
 
   // 文件重命名

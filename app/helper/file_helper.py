@@ -447,7 +447,7 @@ class FileHelper:
         :param rename_season: 修改的季数
         :param offset_episode: 偏移的集数
         """
-        log.info(f"sort_flag:{sort_flag},rename_season:{rename_season},offset_episode:{offset_episode}")
+        log.info(f"level1_path:{self.dir_name},sort_flag:{sort_flag},rename_season:{rename_season},offset_episode:{offset_episode}")
         # try:
         #     # 媒体文件
         #     df_list_level2_media, df_list_level1_media = self.handle_medias_df_dic(rmt=RMT_MEDIAEXT)
